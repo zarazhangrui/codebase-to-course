@@ -1,0 +1,20 @@
+{
+    "name": "codebase-to-course",
+    "owner": {
+        "name": "zarazhangrui"
+    },
+    "metadata": {
+        "description": "A Claude Code skill that turns any codebase into a beautiful, interactive single-page HTML course"
+    },
+    "plugins": [
+        {
+            "name": "codebase-to-course",
+            "source": "./plugins/codebase-to-course",
+            "description": "A Claude Code skill that turns any codebase into a beautiful, interactive single-page HTML course",
+            "version": "1.0.0",
+            "author": {
+                "name": "zarazhangrui"
+            }
+        }
+    ]
+}
