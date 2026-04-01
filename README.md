@@ -20,7 +20,7 @@ You're not trying to become a software engineer. You want coding as a superpower
 
 ## What the course looks like
 
-The output is a **single HTML file** — no dependencies, no setup, works offline. It includes:
+The output is a **directory** containing pre-built CSS/JS, per-module HTML files, and an assembled `index.html` — open it directly in the browser. The only external dependency is Google Fonts (falls back to system fonts offline). It includes:
 
 - **Scroll-based modules** with progress tracking and keyboard navigation
 - **Code ↔ Plain English translations** — real code on the left, what it means on the right
@@ -82,8 +82,16 @@ Code snippets are exact copies from the real codebase — never modified or simp
 codebase-to-course/
 ├── SKILL.md                          # Main skill instructions
 └── references/
+    ├── _base.html                    # HTML shell template
+    ├── _footer.html                  # HTML footer
+    ├── build.sh                      # Course assembly script
+    ├── styles.css                    # Complete CSS design system
+    ├── main.js                       # Interactive elements JS engine
     ├── design-system.md              # CSS tokens, typography, colors, layout
-    └── interactive-elements.md       # Quiz, animation, and visualization patterns
+    ├── interactive-elements.md       # Quiz, animation, and visualization patterns
+    ├── content-philosophy.md         # Content and visual density guidelines
+    ├── module-brief-template.md      # Template for parallel module writing
+    └── gotchas.md                    # Common failure points checklist
 ```
 
 

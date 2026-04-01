@@ -32,7 +32,7 @@
     if (!progressBar) return;
     const scrollTop    = window.scrollY;
     const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const pct          = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+    const pct          = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 100;
     progressBar.style.width = pct + '%';
     progressBar.setAttribute('aria-valuenow', Math.round(pct));
     updateNavDots();
@@ -190,13 +190,13 @@
 
       if (selected.dataset.value === correct) {
         selected.classList.add('correct');
-        feedback.innerHTML = '<strong>Exactly!</strong> ' + rightExp;
+        feedback.textContent = 'Exactly! ' + rightExp;
         feedback.className = 'quiz-feedback show success';
       } else {
         selected.classList.add('incorrect');
-        const correctBtn = $(`.quiz-option[data-value="${correct}"]`, q);
+        const correctBtn = $(`.quiz-option[data-value="${CSS.escape(correct)}"]`, q);
         if (correctBtn) correctBtn.classList.add('correct');
-        feedback.innerHTML = '<strong>Not quite.</strong> ' + wrongExp;
+        feedback.textContent = 'Not quite. ' + wrongExp;
         feedback.className = 'quiz-feedback show error';
       }
     });
@@ -236,8 +236,16 @@
         e.preventDefault();
         target.classList.remove('drag-over');
         const answer = e.dataTransfer.getData('text/plain');
-        const chip   = $(`.dnd-chip[data-answer="${answer}"]`, containerEl);
+        const chip   = $(`.dnd-chip[data-answer="${CSS.escape(answer)}"]`, containerEl);
         if (!chip) return;
+        // Clear previous placement of this chip
+        $$('.dnd-zone-target', containerEl).forEach(t => {
+          if (t.dataset.placed === answer) {
+            t.textContent = 'Drop here';
+            delete t.dataset.placed;
+            t.classList.remove('correct-placed', 'incorrect-placed');
+          }
+        });
         target.textContent    = chip.textContent;
         target.dataset.placed = answer;
         chip.classList.add('placed');
@@ -290,7 +298,11 @@
     if (!container) return;
     $$('.dnd-zone', container).forEach(zone => {
       const target  = $('.dnd-zone-target', zone);
-      if (!target || !target.dataset.placed) return;
+      if (!target) return;
+      if (!target.dataset.placed) {
+        target.classList.add('incorrect-placed');
+        return;
+      }
       if (target.dataset.placed === zone.dataset.correct) {
         target.classList.add('correct-placed');
       } else {
@@ -318,7 +330,7 @@
     if (!containerEl) return;
     const messages    = $$('.chat-message', containerEl);
     const typingEl    = $('.chat-typing', containerEl);
-    const typingAvEl  = $('#' + containerEl.id + '-typing-avatar') || $('.chat-avatar', typingEl);
+    const typingAvEl  = $('#' + containerEl.id + '-typing-avatar') || (typingEl && $('.chat-avatar', typingEl));
     const progressEl  = $('.chat-progress', containerEl);
     let index = 0;
 
@@ -336,8 +348,12 @@
       if (progressEl) progressEl.textContent = index + ' / ' + messages.length + ' messages';
     }
 
+    let busy = false;
+    let allInterval = null;
+
     function showNext() {
-      if (index >= messages.length) return;
+      if (busy || index >= messages.length) return;
+      busy = true;
       const msg    = messages[index];
       const sender = msg.dataset.sender;
 
@@ -354,18 +370,22 @@
         msg.style.display = 'flex';
         msg.style.animation = 'fadeSlideUp 0.3s var(--ease-out)';
         index++;
+        busy = false;
         updateProgress();
       }, 800);
     }
 
     function showAll() {
-      const iv = setInterval(() => {
-        if (index >= messages.length) { clearInterval(iv); return; }
+      if (allInterval) clearInterval(allInterval);
+      allInterval = setInterval(() => {
+        if (index >= messages.length) { clearInterval(allInterval); allInterval = null; return; }
         showNext();
       }, 1200);
     }
 
     function reset() {
+      if (allInterval) { clearInterval(allInterval); allInterval = null; }
+      busy = false;
       index = 0;
       messages.forEach(m => { m.style.display = 'none'; m.style.animation = ''; });
       if (typingEl) typingEl.style.display = 'none';
@@ -388,7 +408,13 @@
   /* ── FLOW ANIMATION ENGINE ─────────────────────────────────── */
   function initFlow(containerEl) {
     if (!containerEl) return;
-    const stepsData  = JSON.parse(containerEl.dataset.steps || '[]');
+    let stepsData;
+    try {
+      stepsData = JSON.parse(containerEl.dataset.steps || '[]');
+    } catch (e) {
+      console.error('Flow animation: invalid JSON in data-steps', e);
+      stepsData = [];
+    }
     const labelEl    = $('.flow-step-label', containerEl);
     const progressEl = $('.flow-progress',   containerEl);
     const packet     = $('.flow-packet',     containerEl);
@@ -400,16 +426,16 @@
 
     function animatePacket(fromId, toId) {
       if (!packet) return;
-      const fromEl = $('#' + fromId);
-      const toEl   = $('#' + toId);
+      const fromEl = $('#' + fromId, containerEl);
+      const toEl   = $('#' + toId, containerEl);
       if (!fromEl || !toEl) return;
       const fromR = fromEl.getBoundingClientRect();
       const toR   = toEl.getBoundingClientRect();
       const contR = containerEl.getBoundingClientRect();
-      const fx = fromR.left + fromR.width / 2  - contR.left;
-      const fy = fromR.top  + fromR.height / 2 - contR.top;
-      const tx = toR.left   + toR.width / 2    - contR.left;
-      const ty = toR.top    + toR.height / 2   - contR.top;
+      const fx = fromR.left + fromR.width / 2  - contR.left - 8;
+      const fy = fromR.top  + fromR.height / 2 - contR.top  - 8;
+      const tx = toR.left   + toR.width / 2    - contR.left - 8;
+      const ty = toR.top    + toR.height / 2   - contR.top  - 8;
       packet.style.setProperty('--packet-from-x', fx + 'px');
       packet.style.setProperty('--packet-from-y', fy + 'px');
       packet.style.setProperty('--packet-to-x',   tx + 'px');
@@ -426,7 +452,7 @@
       const s = stepsData[step];
       $$('.flow-actor', containerEl).forEach(a => a.classList.remove('active'));
       if (s.highlight) {
-        const hEl = $('#' + s.highlight, containerEl) || $('#flow-' + s.highlight);
+        const hEl = $('#' + s.highlight, containerEl) || $('#flow-' + s.highlight, containerEl);
         if (hEl) hEl.classList.add('active');
       }
       if (s.packet && s.from && s.to) animatePacket('flow-' + s.from, 'flow-' + s.to);
@@ -457,10 +483,15 @@
   $$('.arch-component').forEach(comp => {
     comp.addEventListener('click', function () {
       const diagram = this.closest('.arch-diagram');
+      const wasActive = this.classList.contains('active');
       $$('.arch-component', diagram).forEach(c => c.classList.remove('active'));
-      this.classList.add('active');
       const descEl = $('.arch-description', diagram);
-      if (descEl) descEl.textContent = this.dataset.desc || '';
+      if (wasActive) {
+        if (descEl) descEl.textContent = '';
+      } else {
+        this.classList.add('active');
+        if (descEl) descEl.textContent = this.dataset.desc || '';
+      }
     });
   });
 
@@ -470,12 +501,12 @@
     const feedback  = $('.bug-feedback', challenge);
     if (isCorrect) {
       el.classList.add('correct');
-      feedback.innerHTML  = '<strong>Found it!</strong> ' + (el.dataset.explanation || '');
+      feedback.textContent = 'Found it! ' + (el.dataset.explanation || '');
       feedback.className  = 'bug-feedback show success';
       $$('.bug-line', challenge).forEach(l => l.style.pointerEvents = 'none');
     } else {
       el.classList.add('incorrect');
-      feedback.innerHTML  = (el.dataset.hint || 'Not this line — keep looking...');
+      feedback.textContent = el.dataset.hint || 'Not this line — keep looking...';
       feedback.className  = 'bug-feedback show error';
       setTimeout(() => {
         el.classList.remove('incorrect');
@@ -490,7 +521,7 @@
     if (!demo) return;
     $$('.layer', demo).forEach(l => l.style.display = 'none');
     $$('.layer-tab', demo).forEach(t => t.classList.remove('active'));
-    const layer = $('#' + layerId);
+    const layer = $('#' + layerId, demo);
     if (layer) layer.style.display = 'block';
     btn.classList.add('active');
   };

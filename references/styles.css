@@ -247,8 +247,8 @@ pre::-webkit-scrollbar { display: none; }
 
 /* ── MODULE STRUCTURE ───────────────────────────────────────── */
 .module {
-  min-height: 100dvh;
   min-height: 100vh;
+  min-height: 100dvh;
   scroll-snap-align: start;
   padding: var(--space-16) var(--space-6);
   padding-top: calc(var(--nav-height) + var(--space-12));
@@ -570,7 +570,7 @@ p:last-child { margin-bottom: 0; }
 }
 
 .chat-message {
-  display: flex;
+  display: none;
   align-items: flex-end;
   gap: var(--space-3);
   animation: fadeSlideUp 0.3s var(--ease-out);
@@ -613,7 +613,7 @@ p:last-child { margin-bottom: 0; }
 }
 
 .chat-typing {
-  display: flex;
+  display: none;
   align-items: center;
   gap: var(--space-3);
   padding: 0 var(--space-6) var(--space-4);

@@ -191,7 +191,7 @@ For matching concepts to descriptions. Supports both mouse (HTML5 Drag API) and 
 
 **HTML:**
 ```html
-<div class="dnd-container">
+<div class="dnd-container" id="dnd-module-N"> <!-- Replace N with the module number -->
   <div class="dnd-chips">
     <div class="dnd-chip" draggable="true" data-answer="actor-a">Actor A</div>
     <div class="dnd-chip" draggable="true" data-answer="actor-b">Actor B</div>
@@ -204,8 +204,8 @@ For matching concepts to descriptions. Supports both mouse (HTML5 Drag API) and 
     </div>
     <!-- more zones -->
   </div>
-  <button onclick="checkDnD()">Check Matches</button>
-  <button onclick="resetDnD()">Reset</button>
+  <button onclick="checkDnD('dnd-module-N')">Check Matches</button>
+  <button onclick="resetDnD('dnd-module-N')">Reset</button>
 </div>
 ```
 
@@ -392,13 +392,14 @@ Step-by-step visualization of data moving between components. User clicks "Next 
 
 Full-system diagram where hovering/clicking a component shows a description tooltip.
 
+> **Wiring:** The JS engine auto-initializes click handlers on `.arch-component` elements — do NOT add inline onclick handlers. Just give each component `class="arch-component"` and a `data-desc="..."` attribute; `main.js` handles the rest on page load.
+
 **HTML:**
 ```html
 <div class="arch-diagram">
   <div class="arch-zone arch-zone-browser">
     <h4 class="arch-zone-label">Browser</h4>
-    <div class="arch-component" data-desc="Injects UI into the web page, reads DOM, captures user actions"
-         onclick="showArchDesc(this)">
+    <div class="arch-component" data-desc="Injects UI into the web page, reads DOM, captures user actions">
       <div class="arch-icon">📄</div>
       <span>Component A</span>
     </div>
@@ -422,9 +423,9 @@ Shows how different layers (e.g., HTML/CSS/JS, or data/logic/UI) build on each o
 ```html
 <div class="layer-demo">
   <div class="layer-tabs">
-    <button class="layer-tab active" onclick="showLayer('html')">HTML</button>
-    <button class="layer-tab" onclick="showLayer('css')">+ CSS</button>
-    <button class="layer-tab" onclick="showLayer('js')">+ JS</button>
+    <button class="layer-tab active" onclick="showLayer('layer-html', this)">HTML</button>
+    <button class="layer-tab" onclick="showLayer('layer-css', this)">+ CSS</button>
+    <button class="layer-tab" onclick="showLayer('layer-js', this)">+ JS</button>
   </div>
   <div class="layer-viewport">
     <div class="layer" id="layer-html" style="display:block">
