@@ -1,8 +1,8 @@
 # Codebase to Course
 
-A Claude Code skill that turns any codebase into a beautiful, interactive single-page HTML course.
+A Claude Code skill that turns any codebase into a beautiful, interactive browser-ready course.
 
-Point it at a repo. Get back a stunning, self-contained course that teaches how the code works — with scroll-based navigation, animated visualizations, embedded quizzes, and code-with-plain-English side-by-side translations.
+Point it at a repo. Get back a stunning course directory that teaches how the code works — with scroll-based navigation, animated visualizations, embedded quizzes, and code-with-plain-English side-by-side translations.
 
 ## Who is this for?
 
@@ -20,7 +20,7 @@ You're not trying to become a software engineer. You want coding as a superpower
 
 ## What the course looks like
 
-The output is a **single HTML file** — no dependencies, no setup, works offline. It includes:
+The output is a **course directory** with prebuilt assets and an assembled `index.html` — no app setup required, opens directly in the browser. It includes:
 
 - **Scroll-based modules** with progress tracking and keyboard navigation
 - **Code ↔ Plain English translations** — real code on the left, what it means on the right
@@ -82,8 +82,16 @@ Code snippets are exact copies from the real codebase — never modified or simp
 codebase-to-course/
 ├── SKILL.md                          # Main skill instructions
 └── references/
+    ├── _base.html                    # Base HTML shell with course placeholders
+    ├── _footer.html                  # HTML footer used by the build step
+    ├── build.sh                      # Assembles modules into index.html
+    ├── content-philosophy.md         # Writing rules and teaching approach
     ├── design-system.md              # CSS tokens, typography, colors, layout
-    └── interactive-elements.md       # Quiz, animation, and visualization patterns
+    ├── gotchas.md                    # Common failure checklist
+    ├── interactive-elements.md       # Quiz, animation, and visualization patterns
+    ├── main.js                       # Shared interactivity engine
+    ├── module-brief-template.md      # Brief template for parallel module writing
+    └── styles.css                    # Shared course stylesheet
 ```
 
 
