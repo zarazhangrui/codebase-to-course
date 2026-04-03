@@ -1,6 +1,6 @@
 ---
 name: codebase-to-course
-description: "Turn any codebase into a beautiful, interactive single-page HTML course that teaches how the code works to non-technical people. Use this skill whenever someone wants to create an interactive course, tutorial, or educational walkthrough from a codebase or project. Also trigger when users mention 'turn this into a course,' 'explain this codebase interactively,' 'teach this code,' 'interactive tutorial from code,' 'codebase walkthrough,' 'learn from this codebase,' or 'make a course from this project.' This skill produces a stunning, self-contained HTML file with scroll-based navigation, animated visualizations, embedded quizzes, and code-with-plain-English side-by-side translations."
+description: "Turn any codebase into a beautiful, interactive course that teaches how the code works to non-technical people. Use this skill whenever someone wants to create an interactive course, tutorial, or educational walkthrough from a codebase or project. Also trigger when users mention 'turn this into a course,' 'explain this codebase interactively,' 'teach this code,' 'interactive tutorial from code,' 'codebase walkthrough,' 'learn from this codebase,' or 'make a course from this project.' This skill produces a stunning browser-ready course directory with scroll-based navigation, animated visualizations, embedded quizzes, and code-with-plain-English side-by-side translations."
 ---
 
 # Codebase-to-Course
@@ -18,7 +18,7 @@ When the skill is first triggered and the user hasn't specified a codebase yet, 
 > - **A GitHub link** — e.g., "make a course from https://github.com/user/repo"
 > - **The current project** — if you're already in a codebase, just say "turn this into a course"
 >
-> I'll read through the code, figure out how everything fits together, and generate a beautiful single-page HTML course with animated diagrams, plain-English code explanations, and interactive quizzes. The whole thing runs in your browser — no setup needed.
+> I'll read through the code, figure out how everything fits together, and generate a browser-ready interactive course with animated diagrams, plain-English code explanations, and interactive quizzes. The assembled course opens directly in your browser - no setup needed.
 
 If the user provides a GitHub link, clone the repo first (`git clone <url> /tmp/<repo-name>`) before starting the analysis. If they say "this codebase" or similar, use the current working directory.
 
