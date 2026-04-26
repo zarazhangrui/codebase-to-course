@@ -22,6 +22,26 @@ When the skill is first triggered and the user hasn't specified a codebase yet, 
 
 If the user provides a GitHub link, clone the repo first (`git clone <url> /tmp/<repo-name>`) before starting the analysis. If they say "this codebase" or similar, use the current working directory.
 
+### Phase 0: Scope and Language Confirmation
+
+Before analyzing the codebase, confirm two things:
+
+1. **Scope** — Ask if the user wants the full codebase or a specific area. If the user already specified a clear focus (e.g., "just the agent system"), acknowledge it and lock in that scope. If vague, ask one clarifying question.
+
+2. **Language** — Ask what language the course should be written in. The course content (explanations, code translations, quizzes, animations) should match the learner's preferred language. Do NOT assume English.
+
+Use `AskUserQuestion` with `multiSelect: false` to confirm language with these options:
+- **English** — Course written in English (default if user doesn't specify)
+- **中文** — Course content entirely in Chinese, including code translations, quiz questions, chat animations
+- **Other** — Ask user to specify
+
+> **Important:** Language choice affects all user-facing content: module titles, explanations, code↔plain-translation pairs, quiz questions/options, group chat animations, callout boxes, tooltip definitions, and interactive element labels. Code syntax highlighting and technical identifiers (function names, file paths) should NOT be translated — only the explanatory text around them.
+
+After confirming scope and language, announce clearly:
+> "Got it — full-scope course on the agent system, in **中文**. Let me dig into the code..."
+
+Then proceed to Phase 1.
+
 ## Who This Is For
 
 The target learner is a **"vibe coder"** — someone who builds software by instructing AI coding tools in natural language, without a traditional CS education. They may have built this project themselves (without looking at the code), or they may have found an interesting open-source project on GitHub and want to understand how it's built. Either way, they don't yet understand what's happening under the hood.

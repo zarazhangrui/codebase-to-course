@@ -2,6 +2,25 @@
 
 > **When to read this:** During Phase 2.5 (writing module briefs) and Phase 3 (writing module HTML). These principles guide every content decision — what to show, how to explain it, and how to test understanding.
 
+### Language-Aware Content
+
+All text in the course must be written in the language confirmed in Phase 0. This includes:
+- Module titles, subtitles, and headings
+- Explanatory paragraphs and screen text
+- Code↔plain translation explanations (left panel: code stays as-is; right panel: plain explanation in target language)
+- Quiz questions, options, and feedback
+- Group chat animation message text and sender labels
+- Callout box content
+- Glossary tooltip definitions
+- Interactive element labels (button text, flow step descriptions)
+
+**What NOT to translate:**
+- Code syntax, function names, variable names, file paths
+- CSS class names, HTML attributes, data values
+- Technical identifiers that must match the actual codebase
+
+The "Code ↔ English Translation" element name is a structural convention — when the course is in Chinese, it renders as "代码 ↔ 中文对照". Same element, same structure, different language.
+
 These principles are what separate a great course from a generic tutorial. They should guide every content decision:
 
 ### Show, Don't Tell — Aggressively Visual
