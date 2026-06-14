@@ -144,7 +144,7 @@ course-name/
   index.html       ← assembled by build.sh (do not write manually)
 ```
 
-**Step 1 (both paths): Setup** — Create the course directory. Copy these four files verbatim using Read + Write (do not regenerate their contents):
+**Step 1 (both paths): Setup** — Create the course directory. Copy these four files verbatim — a filesystem copy (`cp` / `Copy-Item`) is fastest and avoids transcription drift, though Read + Write also works. Do not regenerate their contents:
 - `references/styles.css` → `course-name/styles.css`
 - `references/main.js` → `course-name/main.js`
 - `references/_footer.html` → `course-name/_footer.html`
@@ -190,9 +190,11 @@ This produces `index.html`. Open it in the browser.
 - Interactive element JS is in `main.js`; wire up via `data-*` attributes and CSS class names as shown in `references/interactive-elements.md`
 - Chat containers need `id` attributes; flow animations need `data-steps='[...]'` JSON on `.flow-animation`
 
-### Phase 4: Review and Open
+### Phase 4: Verify, Review, and Open
 
-After running `build.sh`, open `index.html` in the browser. Walk the user through what was built and ask for feedback on content, design, and interactivity.
+After running `build.sh`, **verify the build before trusting it**: run `python scripts/verify_courses.py "<course-dir>"` (point it at a single course directory, or at a parent folder containing several). It HTML-parses each `index.html` and checks structure and interactive wiring — exactly one `<!DOCTYPE>`/`</html>`, modules == nav-dots, ≥1 group chat and ≥1 flow animation, ≥1 translation block per module, one quiz per module, every quiz block's three `data-*` attributes present as *real* attributes, every flow `data-steps` parsing as JSON, and no leftover placeholders. Fix anything it flags, then rebuild.
+
+Then open `index.html` in the browser. Walk the user through what was built and ask for feedback on content, design, and interactivity. (If you automate a screenshot, note that headless browsers may hang on the Google Fonts request — prefer DOM/`eval` checks.)
 
 ---
 
@@ -209,6 +211,12 @@ The visual design should feel like a **beautiful developer notebook** — warm, 
 - **Depth without harshness**: Subtle warm shadows, never black drop shadows
 
 ---
+
+## Environment Notes
+
+- **The output is a folder, not a single file.** `index.html` links to sibling `styles.css` and `main.js` — keep the three together. Fonts load from the Google Fonts CDN, so the course needs a network connection for its intended typography (it degrades gracefully to system fonts without one).
+- **Windows / cross-platform.** `build.sh` is a Bash one-liner (`cat`). On Windows, `git` and `python` may not be on the Bash PATH — use PowerShell for those and reserve Bash for `bash build.sh`. Quote paths (course folders often contain spaces).
+- **Verifying headless.** Automated screenshots can hang on the blocked Fonts request's `load` event; use DOM/`eval` checks (or `scripts/verify_courses.py`) instead.
 
 ## Reference Files
 

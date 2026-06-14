@@ -20,7 +20,7 @@ You're not trying to become a software engineer. You want coding as a superpower
 
 ## What the course looks like
 
-The output is a **single HTML file** — no dependencies, no setup, works offline. It includes:
+The output is a small **self-contained folder** — `index.html` plus a prebuilt `styles.css` and `main.js` — that opens straight in the browser with no build step or server. (The one external dependency is the Google Fonts CDN for typography, so keep the three files together and open with a network connection for the intended fonts.) It includes:
 
 - **Scroll-based modules** with progress tracking and keyboard navigation
 - **Code ↔ Plain English translations** — real code on the left, what it means on the right
@@ -82,8 +82,15 @@ Code snippets are exact copies from the real codebase — never modified or simp
 codebase-to-course/
 ├── SKILL.md                          # Main skill instructions
 └── references/
+    ├── content-philosophy.md         # Visual density, metaphors, quizzes, tooltips
+    ├── gotchas.md                    # Common failure points checklist
+    ├── module-brief-template.md      # Template for the parallel (complex) build path
     ├── design-system.md              # CSS tokens, typography, colors, layout
-    └── interactive-elements.md       # Quiz, animation, and visualization patterns
+    ├── interactive-elements.md       # Quiz, animation, and visualization patterns
+    ├── _base.html, _footer.html      # HTML shell (assembled by build.sh)
+    ├── styles.css, main.js           # Prebuilt course CSS + JS (copied verbatim)
+    ├── build.sh                      # Concatenates _base + modules + _footer into index.html
+    └── scripts/                      # Helper scripts (e.g. verify_courses.py)
 ```
 
 

@@ -4,6 +4,15 @@ Implementation patterns for every interactive element type used in courses. Pick
 
 > **Architecture note:** All CSS and JavaScript for these elements live in `references/styles.css` and `references/main.js`, which are copied verbatim into every course directory. When writing module HTML files, use only the HTML patterns below — do **not** inline `<style>` or `<script>` tags for these elements. The engines in `main.js` auto-initialize on page load by scanning for the relevant class names and `data-*` attributes described here.
 
+> **⚠️ Engine contract (verified against `main.js` — read this before the examples below).** A few illustrative snippets in this file predate the current engine; where they differ, the engine wins:
+> - **Quiz feedback is auto-prefixed.** `checkQuiz` prepends **"Exactly!"** to a correct answer and **"Not quite."** to a wrong one, then appends your `data-explanation-right` / `data-explanation-wrong`. Write those as continuations — do **not** begin them with "Exactly"/"Not quite".
+> - **Architecture diagrams need no `onclick`.** `main.js` binds every `.arch-component` automatically and shows its `data-desc`. Do **not** add `onclick="showArchDesc(this)"` — no such function exists and it will throw. Give each component a `data-desc` only.
+> - **Drag-and-drop takes a container id.** The `.dnd-container` is auto-initialized; wire the buttons as `checkDnD('<container-id>')` / `resetDnD('<container-id>')` and give the container that `id`.
+> - **Layer toggle takes the button.** `showLayer('<layer-id>', this)` — the second argument is required so the engine can find the enclosing `.layer-demo`.
+> - **Bug challenge reads attributes.** Put the reveal in `data-explanation` on the correct line and an optional `data-hint` on the others; `checkBugLine(this, true|false)` renders them (prefixing "Found it!" on success).
+> - **Flow `data-steps` is single-quoted JSON.** A literal apostrophe in any `label` breaks `JSON.parse` and silently kills the animation — keep labels apostrophe-free or use `&apos;`.
+> - **Write quiz blocks defensively:** put `data-correct`, `data-explanation-right`, and `data-explanation-wrong` each on its own line with the closing `>` alone on the last line, so a stray `>` cannot truncate the tag. Then run `scripts/verify_courses.py`.
+
 ## Table of Contents
 1. [Code ↔ English Translation Blocks](#code--english-translation-blocks)
 2. [Multiple-Choice Quizzes](#multiple-choice-quizzes)
@@ -191,7 +200,7 @@ For matching concepts to descriptions. Supports both mouse (HTML5 Drag API) and 
 
 **HTML:**
 ```html
-<div class="dnd-container">
+<div class="dnd-container" id="dnd-1">
   <div class="dnd-chips">
     <div class="dnd-chip" draggable="true" data-answer="actor-a">Actor A</div>
     <div class="dnd-chip" draggable="true" data-answer="actor-b">Actor B</div>
@@ -204,8 +213,8 @@ For matching concepts to descriptions. Supports both mouse (HTML5 Drag API) and 
     </div>
     <!-- more zones -->
   </div>
-  <button onclick="checkDnD()">Check Matches</button>
-  <button onclick="resetDnD()">Reset</button>
+  <button onclick="checkDnD('dnd-1')">Check Matches</button>
+  <button onclick="resetDnD('dnd-1')">Reset</button>
 </div>
 ```
 
@@ -397,11 +406,11 @@ Full-system diagram where hovering/clicking a component shows a description tool
 <div class="arch-diagram">
   <div class="arch-zone arch-zone-browser">
     <h4 class="arch-zone-label">Browser</h4>
-    <div class="arch-component" data-desc="Injects UI into the web page, reads DOM, captures user actions"
-         onclick="showArchDesc(this)">
+    <div class="arch-component" data-desc="Injects UI into the web page, reads DOM, captures user actions">
       <div class="arch-icon">📄</div>
       <span>Component A</span>
     </div>
+    <!-- NOTE: no onclick — main.js auto-binds .arch-component and reads data-desc. -->
     <!-- more components -->
   </div>
   <div class="arch-zone arch-zone-external">
@@ -422,9 +431,9 @@ Shows how different layers (e.g., HTML/CSS/JS, or data/logic/UI) build on each o
 ```html
 <div class="layer-demo">
   <div class="layer-tabs">
-    <button class="layer-tab active" onclick="showLayer('html')">HTML</button>
-    <button class="layer-tab" onclick="showLayer('css')">+ CSS</button>
-    <button class="layer-tab" onclick="showLayer('js')">+ JS</button>
+    <button class="layer-tab active" onclick="showLayer('layer-html', this)">HTML</button>
+    <button class="layer-tab" onclick="showLayer('layer-css', this)">+ CSS</button>
+    <button class="layer-tab" onclick="showLayer('layer-js', this)">+ JS</button>
   </div>
   <div class="layer-viewport">
     <div class="layer" id="layer-html" style="display:block">

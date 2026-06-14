@@ -30,3 +30,15 @@ Trying to write all modules in one pass causes later modules to be thin and rush
 
 ### Missing Interactive Elements
 A module with only text and code blocks, no interactivity. Every module needs at least one of: quiz, data flow animation, group chat, architecture diagram, drag-and-drop. These aren't decorations — they're how non-technical learners actually process information.
+
+### Malformed Quiz Blocks (the stray `>`)
+The single most common authoring bug. A `.quiz-question-block` carries three attributes — `data-correct`, `data-explanation-right`, `data-explanation-wrong` — across multiple lines. It is dangerously easy to drop a `>` after the *first* explanation, which closes the opening tag early and pushes `data-explanation-wrong` out as page text, silently breaking the wrong-answer feedback. **Fix:** put each attribute on its own line and the closing `>` alone on the final line, and run the verifier (see below), which parses every quiz block and confirms all three attributes are real attributes. Also note: the engine auto-prepends **"Exactly!"** / **"Not quite."** to your explanations, so do *not* begin them with those words.
+
+### Apostrophes in Flow `data-steps`
+The `.flow-animation` `data-steps` attribute is JSON inside *single quotes* (`data-steps='[...]'`). A single apostrophe in any label (`"the user's request"`) terminates the attribute early, `JSON.parse` fails, and the **entire animation silently dies**. **Fix:** keep labels apostrophe-free, use `&apos;`, or switch to double-quote-delimited `data-steps="[{\"label\":\"...\"}]"`. The verifier flags raw apostrophes inside `data-steps`.
+
+### Fonts Require a Network
+The course is *not* fully offline: `_base.html` pulls Bricolage Grotesque / DM Sans / JetBrains Mono from the Google Fonts CDN. With no network the page still works but falls back to serif/sans, and — importantly — headless screenshot tools often hang waiting on the blocked font request's `load` event. **When verifying in a headless browser, use DOM/`eval` checks rather than screenshots**, or self-host the fonts if true offline use is required.
+
+### Shipping Without Verifying
+"It looked fine when I skimmed it" is how the bugs above ship. After `build.sh`, run `scripts/verify_courses.py` (bundled) — it HTML-parses every `index.html` and checks: one `<!DOCTYPE>`/`</html>`, modules == nav-dots, ≥1 chat + ≥1 flow, ≥1 translation per module, one quiz per module, every quiz block's three data-attributes present as real attributes, every flow `data-steps` parses as JSON, and no leftover placeholders. Structural correctness is cheap to verify and expensive to eyeball.
