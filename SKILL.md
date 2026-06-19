@@ -38,6 +38,27 @@ The target learner is a **"vibe coder"** — someone who builds software by inst
 
 **They are NOT trying to become software engineers.** They want coding as a superpower that amplifies what they're already good at. They don't need to write code from scratch — they need to *read* it, *understand* it, and *direct* it.
 
+## Learner Memory Profile
+
+Before analyzing the codebase, build a lightweight learner profile from the current conversation and any locally available memory/context the user has already granted access to. Use it to tailor the course to the learner's real background, goals, and vocabulary.
+
+**What to capture:**
+- Their professional domain or lived context (for example, doctor, designer, founder, teacher, researcher)
+- Their current technical comfort level and recurring tools
+- Their likely goals for understanding this codebase
+- Domain language they already know well, and technical language that still needs tooltips
+
+**How to use it:**
+- Choose metaphors and scenarios that map to the learner's domain. For a doctor, a data pipeline might feel like triage, handoff, chart review, or lab-result routing.
+- Make quizzes reflect decisions they might actually face in that role. For a doctor, ask where they would inspect a broken clinical scheduling flow, not a generic shopping cart.
+- Keep glossary tooltips focused on unfamiliar software terms. Do not over-explain domain terms the learner likely already knows.
+- Explain why each technical idea helps them steer AI coding tools in their own work.
+
+**Privacy and safety rules:**
+- Do not invent personal facts. If the profile is thin, use neutral examples or ask one concise question only when personalization would materially improve the course.
+- Do not include private memory contents, sensitive personal details, credentials, medical records, or contact information in the generated course.
+- Treat the profile as a teaching lens, not as course content. The course should feel personally relevant without exposing the learner's private history.
+
 ## Why This Approach Works
 
 This skill inverts traditional CS education. The old model is: memorize concepts for years → eventually build something → finally see the point (most people quit before step 3). This model is: **build something first → experience it working → now understand how it works.**
@@ -55,6 +76,8 @@ The directory-based output is intentional: separating CSS/JS from content means 
 ### Phase 1: Codebase Analysis
 
 Before writing course HTML, deeply understand the codebase. Read all the key files, trace the data flows, identify the "cast of characters" (main components/modules), and map how they communicate. Thoroughness here pays off — the more you understand, the better the course.
+
+Start by writing a private 3-5 bullet learner memory profile for yourself. Do not place it in the final course unless the user explicitly asks for it. Let it shape the examples, metaphors, tooltips, and quiz scenarios throughout the curriculum.
 
 **What to extract:**
 - The main "actors" (components, services, modules) and their responsibilities
