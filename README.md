@@ -22,6 +22,7 @@ You're not trying to become a software engineer. You want coding as a superpower
 
 The output is a **single HTML file** — no dependencies, no setup, works offline. It includes:
 
+- **Learner-aware teaching** — examples, metaphors, and quiz scenarios can adapt to your background, such as explaining software flows through clinical handoffs for a doctor
 - **Scroll-based modules** with progress tracking and keyboard navigation
 - **Code ↔ Plain English translations** — real code on the left, what it means on the right
 <img width="720" alt="Code translation block" src="https://github.com/user-attachments/assets/fb9e7fac-05c1-4f98-b80c-46543ef81afc" />
@@ -71,6 +72,10 @@ No "What does API stand for?" Instead: "A user reports stale data after switchin
 ### No recycled metaphors
 
 Each concept gets a metaphor that fits *that specific idea*. A database is a library with a card catalog. Auth is a bouncer checking IDs. API rate limiting is a nightclub with a capacity limit. Never the same metaphor twice.
+
+### Memory-aware personalization
+
+If the assistant already knows relevant context about the learner, it should use that context as a teaching lens. A doctor might see debugging framed as clinical triage, data flow as a patient handoff, and reliability as preventing dropped follow-up. Sensitive personal details should never be copied into the course.
 
 ### Original code only
 

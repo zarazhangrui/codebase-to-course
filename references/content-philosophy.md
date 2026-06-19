@@ -38,6 +38,8 @@ No walls of text. Each screen within a module teaches exactly one idea. If you n
 ### Metaphors First, Then Reality
 Introduce every new concept with a metaphor from everyday life. Then immediately ground it: "In our code, this looks like..." The metaphor builds intuition; the code grounds it in reality.
 
+When the learner has a known professional background or personal learning context, use that as the first place to look for metaphors. A clinician may understand queues, handoffs, escalation, triage, chart review, and lab-result routing faster than generic consumer-app examples. A founder may understand funnels, constraints, and operating dashboards. The metaphor should make the technical idea feel closer to the learner's own judgment.
+
 **Critical: No recycled metaphors.** Do NOT default to "restaurant" for everything — that's the #1 crutch. Each concept deserves its own metaphor that feels natural to *that specific idea*. A database is a library with a card catalog. Auth is a bouncer checking IDs. An event loop is an air traffic controller. Message passing is a postal system. API rate limiting is a nightclub with a capacity limit. Pick the metaphor that makes the concept click, not the one that's easiest to reach for. If you catch yourself using "restaurant" or "kitchen" more than once in a course, stop and rethink.
 
 ### Learn by Tracing
@@ -87,3 +89,5 @@ The goal of learning is practical application — being able to *do something* w
 **How many quizzes:** One per module, placed at the end after the learner has seen all the content. 3-5 questions per quiz. Each question should make the learner pause and *think*, not just pick the obvious answer.
 
 **Deciding what concepts are worth quizzing:** Quiz the things that would actually help someone in practice — architecture understanding ("where does this logic live and why?"), debugging intuition ("what would cause this symptom?"), and decision-making ("what's the tradeoff here?"). If a concept won't help someone debug a problem, steer an AI assistant, or make an architectural decision, it's not worth quizzing.
+
+**Personalized scenarios:** When a learner profile is available, write at least one quiz per course around a realistic situation from that learner's world. For a doctor, this might be a broken shift-scheduling screen, stale patient-list data, or a handoff workflow that lost context. Keep the technical lesson unchanged; only adapt the story so the learner can reason from familiar experience.
