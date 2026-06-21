@@ -87,3 +87,69 @@ The goal of learning is practical application — being able to *do something* w
 **How many quizzes:** One per module, placed at the end after the learner has seen all the content. 3-5 questions per quiz. Each question should make the learner pause and *think*, not just pick the obvious answer.
 
 **Deciding what concepts are worth quizzing:** Quiz the things that would actually help someone in practice — architecture understanding ("where does this logic live and why?"), debugging intuition ("what would cause this symptom?"), and decision-making ("what's the tradeoff here?"). If a concept won't help someone debug a problem, steer an AI assistant, or make an architectural decision, it's not worth quizzing.
+
+---
+
+## Engineer Mode — Content Philosophy
+
+When writing Engineer Mode content, the core principles shift. The audience is a professional engineer, and the goal is to provide actionable technical intelligence, not to teach fundamentals.
+
+### Code as Evidence, Not Illustration
+
+In Beginner Mode, code snippets illustrate concepts. In Engineer Mode, **every claim must be backed by code**. If you write "the retrieval pipeline uses hybrid search," show the exact function that implements it with file path and line numbers. No hand-waving. The engineer reading this will open the file to verify — make sure they find exactly what you described.
+
+**Critical: Use original code exactly as-is.** Never modify, simplify, or trim code. But unlike Beginner Mode (5-10 lines), Engineer Mode allows **15-25 lines** when the analysis requires it. The reader can read code — don't waste their time with artificially shortened snippets that lose context.
+
+### Engineering Commentary, Not Plain English
+
+Replace "Code ↔ Plain English" with **Code ↔ Engineering Commentary**. The right panel assumes the reader CAN read code. It adds value by answering:
+- **WHY** is this code written this way? What design pattern? What trade-off?
+- **What could go wrong?** Edge cases, failure modes, performance implications.
+- **What are the alternatives?** How else could this have been done? Why wasn't it?
+- **What's the history?** Git blame patterns, version evolution, deprecation risks.
+
+### Show the Alternatives
+
+For every major design decision, mention what could have been done differently and why it wasn't. This is what separates analysis from documentation. Use ADR Cards to structure this comparison: problem → chosen approach → 2-3 alternatives → trade-off analysis.
+
+**Critical: Alternatives must be genuine.** Don't create strawman alternatives to make the chosen approach look good. Engineers will see through this instantly and lose trust in the entire analysis.
+
+### Be Honest About Weaknesses
+
+Every project has limitations. Engineers trust analyses that acknowledge them. Use `callout-warning` for known issues. Use risk indicators (🔴 High / 🟡 Medium / 🟢 Low) for failure modes. Be specific:
+
+- **BAD**: "Performance may vary depending on the use case."
+- **GOOD**: "Single-node deployment caps at ~50 QPS for hybrid retrieval. Beyond this threshold, P99 latency exceeds 2 seconds. See `src/search/hybrid_searcher.py:142` for the bottleneck in the reranking stage."
+
+### Quantify When Possible
+
+"Handles documents quickly" is useless. "Parses a 50-page PDF in ~8 seconds on a single T4 GPU, with DeepDoc consuming ~3.2 GB VRAM" is actionable. Extract benchmark results, configuration defaults, resource requirements from the code. If no benchmarks exist in the codebase, estimate from the algorithm complexity and model sizes.
+
+### Integration is Actionable
+
+Don't just describe APIs — show **concrete integration code**. "Project A outputs format X, here's 10 lines of code that bridge it to Project B's input format Y." Engineers evaluating integration potential need to see the data format compatibility, the API contract, and the edge cases — not just a diagram.
+
+### Verdict Every Module
+
+At the end of each module, provide a clear, opinionated verdict callout. "This architecture is strong for X because Y. It is weak for Z because W. If your use case is V, consider alternative Q." Never hedge with "it depends" without saying what it depends ON.
+
+### Less Glossary, More Domain Terms
+
+In Engineer Mode, don't tooltip basic CS concepts (API, DOM, async). DO tooltip:
+- **Project-specific terms** (e.g., "DeepDoc" in RAGFlow, "middle_json" in MinerU)
+- **Domain-specific concepts** the engineer may not know (e.g., "NMS threshold" in document OCR, "HyDE" in retrieval)
+- **Configuration parameters** with performance implications
+
+### Engineer Mode Quiz Design
+
+Quizzes test **engineering judgment**, not factual recall:
+
+**Good quiz questions:**
+- "Your service needs to process 100K documents/hour. Based on the architecture, which configuration would you choose?"
+- "You've noticed search results are missing relevant documents. Based on the retrieval pipeline, where would you look first?"
+- "The team wants to add a custom document parser. Based on the extension system, what's the correct approach?"
+
+**What NOT to quiz:**
+- API names or function signatures (they can look at the code)
+- Basic CS concepts (they already know)
+- File paths (nobody memorizes these)

@@ -22,6 +22,14 @@ Implementation patterns for every interactive element type used in courses. Pick
 15. [Visual File Tree](#visual-file-tree)
 16. [Icon-Label Rows](#icon-label-rows)
 17. [Numbered Step Cards](#numbered-step-cards)
+18. [ADR Cards (Engineer Mode)](#adr-cards-engineer-mode)
+19. [Trade-off Matrix (Engineer Mode)](#trade-off-matrix-engineer-mode)
+20. [Scenario Judge (Engineer Mode)](#scenario-judge-engineer-mode)
+21. [Integration Blueprint (Engineer Mode)](#integration-blueprint-engineer-mode)
+22. [Risk Indicators (Engineer Mode)](#risk-indicators-engineer-mode)
+23. [Verdict Callout (Engineer Mode)](#verdict-callout-engineer-mode)
+24. [Critical Path Trace (Engineer Mode)](#critical-path-trace-engineer-mode)
+25. [Source File Map (Engineer Mode)](#source-file-map-engineer-mode)
 
 ---
 
@@ -943,3 +951,661 @@ For sequences that would otherwise be a numbered paragraph list. Visual, scannab
 }
 .step-body p { margin: var(--space-1) 0 0; color: var(--color-text-secondary); font-size: var(--text-sm); }
 ```
+
+---
+
+## Engineer Mode Interactive Elements
+
+The following elements are **exclusive to Engineer Mode** and are required in every Engineer Mode guide. They replace or supplement the Beginner Mode elements to serve the professional engineer audience.
+
+---
+
+## ADR Cards (Engineer Mode)
+
+Architecture Decision Record cards — the most important Engineer Mode element. Each card presents one major design decision: the problem, the chosen solution, alternatives that were NOT chosen, and the trade-off analysis.
+
+**Wiring:** `main.js` auto-initializes every `.adr-card` on page load. Clicking the card toggles the expanded analysis section. Use `data-adr-id` for unique identification.
+
+**HTML:**
+```html
+<div class="adr-card animate-in" data-adr-id="adr-1">
+  <div class="adr-header">
+    <span class="adr-badge">ADR #1</span>
+    <h3 class="adr-title">使用 Pipeline 模式统一处理多种文档格式</h3>
+    <p class="adr-summary">将不同格式的文档解析统一为 pipeline 抽象，而不是为每种格式写独立处理逻辑。</p>
+    <button class="adr-toggle" onclick="toggleADR(this)">展开分析 ▾</button>
+  </div>
+  <div class="adr-body" style="display:none">
+    <div class="adr-section">
+      <h4 class="adr-section-title">问题背景</h4>
+      <p>需要支持 PDF、DOCX、HTML 等 10+ 种格式，每种格式有不同的解析需求和边界情况。如果为每种格式写独立逻辑，代码量指数增长且难以维护。</p>
+    </div>
+    <div class="adr-section">
+      <h4 class="adr-section-title">选定方案</h4>
+      <p>抽象出统一的 Pipeline 接口，每个格式实现自己的 Backend，共享 Pipeline 处理阶段（OCR、布局分析、表格识别）。</p>
+      <div class="adr-code-ref">
+        <code class="adr-file-ref">src/pipeline/base.py:42-58</code>
+        <p class="adr-code-note">Pipeline 基类定义了 6 个处理阶段的接口</p>
+      </div>
+    </div>
+    <div class="adr-section">
+      <h4 class="adr-section-title">备选方案</h4>
+      <div class="adr-alternatives">
+        <div class="adr-alt">
+          <span class="adr-alt-name">方案 B: 格式专属处理器</span>
+          <p class="adr-alt-desc">为每种格式写独立的端到端处理函数。简单直接，但无法共享 OCR 等通用组件。</p>
+          <span class="adr-alt-verdict">❌ 弃选：扩展性差，每增加一种格式需要完整重写</span>
+        </div>
+        <div class="adr-alt">
+          <span class="adr-alt-name">方案 C: 插件系统 + 微内核</span>
+          <p class="adr-alt-desc">微内核调度，格式解析作为外部插件加载。最大灵活性，但增加了部署复杂度和调试难度。</p>
+          <span class="adr-alt-verdict">⚠️ 考虑过但认为过度设计：当前格式数量不需要如此复杂的扩展机制</span>
+        </div>
+      </div>
+    </div>
+    <div class="adr-section">
+      <h4 class="adr-section-title">权衡分析</h4>
+      <table class="adr-tradeoff-table">
+        <thead>
+          <tr><th>维度</th><th>Pipeline 模式</th><th>格式专属</th><th>微内核</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>代码复用</td><td class="adr-good">★★★</td><td class="adr-bad">★☆☆</td><td class="adr-mid">★★☆</td></tr>
+          <tr><td>扩展性</td><td class="adr-mid">★★☆</td><td class="adr-bad">★☆☆</td><td class="adr-good">★★★</td></tr>
+          <tr><td>调试难度</td><td class="adr-mid">★★☆</td><td class="adr-good">★★★</td><td class="adr-bad">★☆☆</td></tr>
+          <tr><td>部署复杂度</td><td class="adr-good">★★★</td><td class="adr-good">★★★</td><td class="adr-bad">★☆☆</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+```
+
+**Rules:**
+- At least 3 ADR cards across the entire guide
+- Each card must reference specific code with file path and line numbers
+- Alternatives must be genuine — don't create strawman alternatives to make the chosen approach look good
+- The trade-off table must be honest — if the chosen approach has weaknesses, show them
+- Use Chinese or English depending on the guide's language
+
+---
+
+## Trade-off Matrix (Engineer Mode)
+
+A structured comparison table evaluating different approaches, configurations, or tools across multiple dimensions. Engineers think in trade-offs — this element makes the trade-off space explicit.
+
+**HTML:**
+```html
+<div class="tradeoff-matrix animate-in">
+  <h3 class="tradeoff-title">方案对比：文档解析策略</h3>
+  <p class="tradeoff-desc">不同解析策略在准确率、速度、资源消耗上的权衡</p>
+  <div class="tradeoff-table-wrap">
+    <table class="tradeoff-table">
+      <thead>
+        <tr>
+          <th class="tradeoff-dim">维度</th>
+          <th>传统 Pipeline<br><span class="tradeoff-sub">多模型组合</span></th>
+          <th>VLM 解析<br><span class="tradeoff-sub">视觉语言模型</span></th>
+          <th>混合模式<br><span class="tradeoff-sub">规则 + 模型</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="tradeoff-dim">解析准确率</td>
+          <td class="tradeoff-good">高（结构化文档）</td>
+          <td class="tradeoff-good">高（复杂排版）</td>
+          <td class="tradeoff-mid">中高</td>
+        </tr>
+        <tr>
+          <td class="tradeoff-dim">处理速度</td>
+          <td class="tradeoff-good">快（~2s/页）</td>
+          <td class="tradeoff-bad">慢（~15s/页）</td>
+          <td class="tradeoff-mid">中（~5s/页）</td>
+        </tr>
+        <tr>
+          <td class="tradeoff-dim">GPU 内存</td>
+          <td class="tradeoff-good">2-4 GB</td>
+          <td class="tradeoff-bad">16-24 GB</td>
+          <td class="tradeoff-mid">8-12 GB</td>
+        </tr>
+        <tr>
+          <td class="tradeoff-dim">适用场景</td>
+          <td>标准 PDF、扫描件</td>
+          <td>复杂排版、多语言混排</td>
+          <td>需要精确表格提取</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="tradeoff-verdict">
+    <strong>结论：</strong>对于大多数场景，传统 Pipeline 是性价比最高的选择。VLM 适合准确率优先且 GPU 资源充足的场景。混合模式是过渡方案。
+  </div>
+</div>
+```
+
+**Rules:**
+- At least 1 per guide
+- Always include a "verdict" row or section at the bottom with a clear recommendation
+- Use color coding: `tradeoff-good` (green), `tradeoff-mid` (amber), `tradeoff-bad` (red)
+- Dimensions should cover: performance, resource usage, complexity, accuracy, maintainability
+- Data must come from actual code analysis (batch sizes, config defaults, benchmark results)
+
+---
+
+## Scenario Judge (Engineer Mode)
+
+Present 3-4 real-world scenarios and evaluate the project's suitability for each. This helps engineers quickly determine if the project fits their use case.
+
+**Wiring:** `main.js` auto-initializes. Clicking a scenario card expands the detailed analysis. Use `onclick="toggleScenario(this)"`.
+
+**HTML:**
+```html
+<div class="scenario-judge animate-in">
+  <h3 class="sj-title">场景适配评估</h3>
+  <p class="sj-desc">评估此项目在典型使用场景下的适用度</p>
+
+  <div class="sj-card" data-verdict="excellent">
+    <div class="sj-card-header" onclick="toggleScenario(this)">
+      <span class="sj-verdict sj-excellent">非常适合</span>
+      <h4 class="sj-scenario">企业内部知识库：处理 PDF/Word 文档，支持全文检索</h4>
+      <span class="sj-toggle">▾</span>
+    </div>
+    <div class="sj-card-body" style="display:none">
+      <div class="sj-pros-cons">
+        <div class="sj-pros">
+          <h5>优势</h5>
+          <ul>
+            <li>内置 14 种分块模板，适配不同文档结构</li>
+            <li>混合检索（全文 + 向量 + 重排序）开箱即用</li>
+            <li>支持增量索引，适合持续增长的知识库</li>
+          </ul>
+        </div>
+        <div class="sj-cons">
+          <h5>注意</h5>
+          <ul>
+            <li>DeepDoc 依赖 ONNX 模型，首次启动需下载 ~500MB</li>
+            <li>中文文档表格识别准确率约 85%，复杂表格需人工校验</li>
+          </ul>
+        </div>
+      </div>
+      <div class="sj-config-tips">
+        <strong>推荐配置：</strong>
+        <code>chunk_method=naive, chunk_size=512, similarity_threshold=0.7</code>
+      </div>
+    </div>
+  </div>
+
+  <div class="sj-card" data-verdict="caution">
+    <div class="sj-card-header" onclick="toggleScenario(this)">
+      <span class="sj-verdict sj-caution">需要评估</span>
+      <h4 class="sj-scenario">实时聊天机器人：需要 &lt;500ms 响应的客服场景</h4>
+      <span class="sj-toggle">▾</span>
+    </div>
+    <div class="sj-card-body" style="display:none">
+      <div class="sj-pros-cons">
+        <div class="sj-pros">
+          <h5>优势</h5>
+          <ul>
+            <li>API 设计支持流式输出</li>
+            <li>检索缓存机制减少重复查询</li>
+          </ul>
+        </div>
+        <div class="sj-cons">
+          <h5>注意</h5>
+          <ul>
+            <li>完整检索链路（检索 + 重排序 + LLM）平均 2-4 秒</li>
+            <li>Go 服务层增加了部署复杂度</li>
+            <li>需要额外的缓存层才能达到 500ms 目标</li>
+          </ul>
+        </div>
+      </div>
+      <div class="sj-config-tips">
+        <strong>如果要使用：</strong>
+        <p>建议仅使用检索部分（跳过 LLM 生成），配合外部低延迟模型。考虑 Redis 缓存热门查询。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sj-card" data-verdict="poor">
+    <div class="sj-card-header" onclick="toggleScenario(this)">
+      <span class="sj-verdict sj-poor">不推荐</span>
+      <h4 class="sj-scenario">多模态文档处理：视频/音频转文本并建索引</h4>
+      <span class="sj-toggle">▾</span>
+    </div>
+    <div class="sj-card-body" style="display:none">
+      <p class="sj-reason">项目核心能力集中在文本和结构化文档，不支持音视频输入。虽然有 Agent 框架可以扩展，但需要自行开发音视频处理管道，工作量接近重新开发。</p>
+      <p class="sj-alternative"><strong>替代方案：</strong>考虑 Whisper + 本项目组合：Whisper 处理音视频转文本，输出接入本项目的索引管道。</p>
+    </div>
+  </div>
+</div>
+```
+
+**Rules:**
+- At least 1 per guide
+- Include a mix: 1-2 "excellent fit", 1 "needs evaluation", 1 "not recommended"
+- For "not recommended" scenarios, always suggest an alternative or combination approach
+- Be specific about configurations and gotchas — don't just say "it works" or "it doesn't"
+
+---
+
+## Integration Blueprint (Engineer Mode)
+
+Shows how data flows between this project and other systems. Includes concrete code examples for common integration patterns.
+
+**HTML:**
+```html
+<div class="integration-blueprint animate-in">
+  <h3 class="ib-title">集成蓝图：与 LlamaIndex 组合使用</h3>
+  <p class="ib-desc">将本项目的文档解析能力与 LlamaIndex 的索引和查询能力结合</p>
+
+  <div class="ib-flow">
+    <div class="ib-node ib-node-source">
+      <div class="ib-node-icon">📄</div>
+      <span class="ib-node-label">原始文档</span>
+    </div>
+    <div class="ib-arrow">→</div>
+    <div class="ib-node ib-node-this">
+      <div class="ib-node-icon">⚙️</div>
+      <span class="ib-node-label">本项目解析器</span>
+      <span class="ib-node-detail">PDF → 结构化 JSON</span>
+    </div>
+    <div class="ib-arrow">→</div>
+    <div class="ib-node ib-node-bridge">
+      <div class="ib-node-icon">🔗</div>
+      <span class="ib-node-label">格式转换</span>
+      <span class="ib-node-detail">JSON → LlamaIndex Document</span>
+    </div>
+    <div class="ib-arrow">→</div>
+    <div class="ib-node ib-node-target">
+      <div class="ib-node-icon">🔍</div>
+      <span class="ib-node-label">LlamaIndex</span>
+      <span class="ib-node-detail">VectorStoreIndex + 查询</span>
+    </div>
+  </div>
+
+  <div class="ib-code-section">
+    <h4 class="ib-code-title">桥接代码示例</h4>
+    <div class="translation-block">
+      <div class="translation-code">
+        <span class="translation-label">INTEGRATION CODE</span>
+        <pre><code>
+<span class="code-line"><span class="code-keyword">from</span> project <span class="code-keyword">import</span> DocumentParser</span>
+<span class="code-line"><span class="code-keyword">from</span> llama_index.core <span class="code-keyword">import</span> Document</span>
+<span class="code-line"></span>
+<span class="code-line">parser = DocumentParser(backend=<span class="code-string">"pipeline"</span>)</span>
+<span class="code-line">result = parser.parse(<span class="code-string">"report.pdf"</span>)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment"># 转换为本项目输出格式 → LlamaIndex Document</span></span>
+<span class="code-line">documents = [</span>
+<span class="code-line">    Document(</span>
+<span class="code-line">        text=block.text,</span>
+<span class="code-line">        metadata={<span class="code-string">"source"</span>: block.page_num}</span>
+<span class="code-line">    )</span>
+<span class="code-line">    <span class="code-keyword">for</span> block <span class="code-keyword">in</span> result.blocks</span>
+<span class="code-line">    <span class="code-keyword">if</span> block.type != BlockType.IMAGE</span>
+<span class="code-line">]</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">工程分析</span>
+        <div class="translation-lines">
+          <p class="tl">直接使用项目 API 而非 CLI 调用——减少进程间通信开销</p>
+          <p class="tl">backend 参数可选 pipeline/vlm/hybrid，根据场景选择</p>
+          <p class="tl">解析结果为结构化的 block 列表，每个 block 有类型和位置信息</p>
+          <p class="tl">过滤掉 IMAGE 类型——LlamaIndex 的文本索引不处理图片，需要单独处理多模态</p>
+          <p class="tl">metadata 保留页码信息，方便后续引用溯源</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ib-compat-notes">
+    <h4>兼容性注意事项</h4>
+    <div class="ib-note ib-note-warn">
+      <span class="ib-note-icon">⚠️</span>
+      <p>两个项目的 Python 版本要求可能冲突——本项目要求 3.10+，部分 LlamaIndex 集成包要求 3.9。建议使用 venv 隔离。</p>
+    </div>
+    <div class="ib-note ib-note-info">
+      <span class="ib-note-icon">ℹ️</span>
+      <p>本项目输出的中间 JSON 格式可以通过 <code>to_llamaindex()</code> 工具函数直接转换（需安装 <code>project[llamaindex]</code> extra）。</p>
+    </div>
+  </div>
+</div>
+```
+
+**Rules:**
+- At least 1 per guide (if the project has integration points)
+- Show REAL code, not pseudocode — the integration example must be runnable
+- Include compatibility notes, version conflicts, and gotchas
+- The flow diagram at the top gives the big picture; the code below makes it actionable
+
+---
+
+## Risk Indicators (Engineer Mode)
+
+Colored badges that indicate the severity of identified risks, limitations, or failure modes. Use inline within text or in dedicated risk assessment sections.
+
+**HTML — inline usage:**
+```html
+<p>单节点部署时最大并发查询数约 50 QPS <span class="risk-badge risk-medium">🟡 中等风险</span>，超过此阈值检索延迟显著上升。</p>
+```
+
+**HTML — risk assessment panel:**
+```html
+<div class="risk-panel animate-in">
+  <h3 class="risk-panel-title">风险评估</h3>
+  <div class="risk-items">
+    <div class="risk-item">
+      <span class="risk-badge risk-high">🔴 高风险</span>
+      <div class="risk-content">
+        <strong>表格识别准确率</strong>
+        <p>复杂嵌套表格的识别准确率约 70-80%，在生产环境中可能需要人工后处理。<code>src/deepdoc/table_recognizer.py:156</code> 中的 NMS 阈值硬编码为 0.3，无法通过配置调整。</p>
+      </div>
+    </div>
+    <div class="risk-item">
+      <span class="risk-badge risk-medium">🟡 中等风险</span>
+      <div class="risk-content">
+        <strong>Go 服务依赖</strong>
+        <p>API 服务层用 Go 实现，Python 核心通过 gRPC 通信。这意味着调试需要同时理解两种语言的工具链，且 gRPC 序列化增加了约 5ms 的延迟。</p>
+      </div>
+    </div>
+    <div class="risk-item">
+      <span class="risk-badge risk-low">🟢 低风险</span>
+      <div class="risk-content">
+        <strong>模型版本锁定</strong>
+        <p>ONNX 模型与特定版本绑定，升级需要重新验证。但有版本管理机制，且模型更新频率低（每季度一次）。</p>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+**Rules:**
+- Use throughout the guide wherever limitations or risks are mentioned
+- 🔴 High Risk: Will cause production issues, requires mitigation strategy
+- 🟡 Medium Risk: May cause issues in specific scenarios, has workarounds
+- 🟢 Low Risk: Minor inconvenience, unlikely to cause production problems
+- Always explain WHY the risk exists with a specific code reference
+
+---
+
+## Verdict Callout (Engineer Mode)
+
+Summary judgment at the end of each module. Concise, opinionated, and actionable.
+
+**HTML:**
+```html
+<div class="verdict-callout animate-in">
+  <div class="verdict-icon">⚖️</div>
+  <div class="verdict-content">
+    <span class="verdict-label">模块结论</span>
+    <p class="verdict-text">Pipeline 架构设计<strong class="verdict-strong">合理且有前瞻性</strong>。统一接口 + 后端可插拔的模式在当前规模下是正确选择。唯一的结构性风险是 Pipeline 阶段之间耦合较紧——中间阶段的数据格式变更会影响所有下游阶段。</p>
+    <div class="verdict-action">
+      <strong>建议：</strong>如果你需要自定义处理阶段，优先通过配置参数而非修改源码来实现。参考 <code>pipeline_config.yaml</code> 中的 stage_options。
+    </div>
+  </div>
+</div>
+```
+
+**Variants:**
+- `verdict-positive`: green left border, for strong design decisions
+- `verdict-mixed`: amber left border, for adequate but imperfect decisions  
+- `verdict-negative`: red left border, for weak or problematic design choices
+
+**Rules:**
+- One verdict callout at the end of each module
+- Must be opinionated — don't hedge with "it depends"
+- Must include a concrete, actionable recommendation
+- Reference specific code or configuration
+
+---
+
+## Critical Path Trace (Engineer Mode)
+
+Step-by-step code walkthrough of the most important operations. Unlike Beginner Mode's flow animations, this shows actual code with engineering commentary explaining WHY each step exists.
+
+**HTML:**
+```html
+<div class="critical-path animate-in">
+  <h3 class="cp-title">关键路径：PDF 文档解析全流程</h3>
+  <p class="cp-desc">追踪一份 PDF 从上传到生成结构化文档的完整代码路径</p>
+
+  <div class="cp-steps">
+    <div class="cp-step">
+      <div class="cp-step-marker">
+        <span class="cp-step-num">1</span>
+        <code class="cp-step-file">api/upload.py:34-42</code>
+      </div>
+      <div class="cp-step-content">
+        <div class="translation-block">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">async def</span> <span class="code-function">upload_document</span>(file: UploadFile):</span>
+<span class="code-line">    content = <span class="code-keyword">await</span> file.read()</span>
+<span class="code-line">    doc_hash = hashlib.md5(content).hexdigest()</span>
+<span class="code-line">    <span class="code-keyword">if</span> cache.exists(doc_hash):</span>
+<span class="code-line">        <span class="code-keyword">return</span> cache.get(doc_hash)</span>
+<span class="code-line">    task = parse_queue.enqueue(content, file.filename)</span>
+<span class="code-line">    <span class="code-keyword">return</span> {<span class="code-string">"task_id"</span>: task.id, <span class="code-string">"status"</span>: <span class="code-string">"queued"</span>}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">工程分析</span>
+            <div class="translation-lines">
+              <p class="tl"><strong>入口即异步</strong>——使用 async 避免阻塞事件循环，这对于同时处理多个上传请求至关重要</p>
+              <p class="tl"><strong>MD5 哈希做去重</strong>——相同文件不会重复解析，这对知识库场景是重要的优化。但注意：MD5 不适合安全场景，这里仅用于缓存键</p>
+              <p class="tl"><strong>入队而非同步处理</strong>——解析是 CPU/GPU 密集型任务，通过队列异步处理，API 立即返回 task_id。这是正确的设计——解析可能需要数十秒</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cp-step">
+      <div class="cp-step-marker">
+        <span class="cp-step-num">2</span>
+        <code class="cp-step-file">parser/worker.py:78-95</code>
+      </div>
+      <div class="cp-step-content">
+        <div class="translation-block">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">def</span> <span class="code-function">process_task</span>(task: ParseTask):</span>
+<span class="code-line">    backend = select_backend(task.filename)</span>
+<span class="code-line">    pipeline = PipelineFactory.create(backend)</span>
+<span class="code-line">    result = pipeline.execute(task.content)</span>
+<span class="code-line">    cache.store(task.doc_hash, result)</span>
+<span class="code-line">    <span class="code-keyword">return</span> result</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">工程分析</span>
+            <div class="translation-lines">
+              <p class="tl"><strong>后端自动选择</strong>——根据文件扩展名选择最合适的解析后端。这个决策是隐式的，调用方无需关心</p>
+              <p class="tl"><strong>工厂模式创建 Pipeline</strong>——PipelineFactory 封装了复杂的依赖注入逻辑。这增加了代码可读性，但让调试时需要多跳一层</p>
+              <p class="tl"><strong>结果缓存到持久化存储</strong>——与入口的 MD5 检查形成闭环</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+**Rules:**
+- At least 2 critical path traces per guide
+- Each step must include real code from the codebase with exact file path and line numbers
+- Engineering commentary explains WHY, not WHAT — assume the reader can read code
+- Focus on the 3-5 most important code paths in the entire project
+- Highlight design patterns, potential issues, and non-obvious decisions
+
+---
+
+## Source File Map (Engineer Mode)
+
+An annotated directory tree that classifies each key source file/directory as **framework** (骨架/框架性) or **functional** (功能/功能性). This is the most important orienting element for developers — it answers "which files should I read first to understand how this project works?"
+
+**Wiring:** `main.js` auto-initializes every `.source-file-map` on page load. Directory nodes are expandable/collapsible via `onclick="toggleSfmDir(this)"`. Role filter buttons toggle visibility.
+
+**HTML:**
+```html
+<div class="source-file-map animate-in">
+  <div class="sfm-header">
+    <h3 class="sfm-title">源码文件地图</h3>
+    <p class="sfm-desc">项目核心源码分类：<span class="sfm-badge sfm-framework">框架性</span> 文件定义架构骨架，<span class="sfm-badge sfm-functional">功能性</span> 文件实现具体能力</p>
+    <div class="sfm-filters">
+      <button class="sfm-filter active" onclick="filterSfm(this, 'all')">全部</button>
+      <button class="sfm-filter" onclick="filterSfm(this, 'framework')">仅框架</button>
+      <button class="sfm-filter" onclick="filterSfm(this, 'functional')">仅功能</button>
+      <button class="sfm-filter" onclick="filterSfm(this, 'entry')">入口文件</button>
+    </div>
+  </div>
+
+  <div class="sfm-stats">
+    <div class="sfm-stat">
+      <span class="sfm-stat-num">47</span>
+      <span class="sfm-stat-label">核心文件</span>
+    </div>
+    <div class="sfm-stat">
+      <span class="sfm-stat-num">12</span>
+      <span class="sfm-stat-label">框架文件</span>
+    </div>
+    <div class="sfm-stat">
+      <span class="sfm-stat-num">35</span>
+      <span class="sfm-stat-label">功能文件</span>
+    </div>
+    <div class="sfm-stat">
+      <span class="sfm-stat-num">~18K</span>
+      <span class="sfm-stat-label">核心代码行</span>
+    </div>
+  </div>
+
+  <div class="sfm-tree">
+    <!-- Directory (expandable) -->
+    <div class="sfm-dir open" data-role="framework">
+      <div class="sfm-dir-header" onclick="toggleSfmDir(this)">
+        <span class="sfm-arrow">▾</span>
+        <span class="sfm-dir-name">rag/</span>
+        <span class="sfm-role sfm-framework">框架</span>
+        <span class="sfm-dir-desc">RAG 核心框架层——定义检索增强的骨架</span>
+      </div>
+      <div class="sfm-dir-children">
+        <!-- Framework file -->
+        <div class="sfm-file" data-role="framework">
+          <span class="sfm-file-icon">📄</span>
+          <span class="sfm-file-name">settings.py</span>
+          <span class="sfm-role sfm-framework">框架</span>
+          <span class="sfm-file-loc">~280 LOC</span>
+          <span class="sfm-file-desc">全局配置单例，定义所有可调参数</span>
+        </div>
+
+        <!-- Functional file -->
+        <div class="sfm-file" data-role="functional">
+          <span class="sfm-file-icon">📄</span>
+          <span class="sfm-file-name">naive.py</span>
+          <span class="sfm-role sfm-functional">功能</span>
+          <span class="sfm-file-loc">~420 LOC</span>
+          <span class="sfm-file-desc">通用文档分块实现，14 种模板策略</span>
+        </div>
+
+        <!-- Entry point file -->
+        <div class="sfm-file sfm-entry" data-role="entry">
+          <span class="sfm-file-icon">🚀</span>
+          <span class="sfm-file-name">__init__.py</span>
+          <span class="sfm-role sfm-framework">框架</span>
+          <span class="sfm-file-loc">~45 LOC</span>
+          <span class="sfm-file-desc">模块入口，定义公开 API 和导入链</span>
+        </div>
+
+        <!-- Nested directory -->
+        <div class="sfm-dir" data-role="functional">
+          <div class="sfm-dir-header" onclick="toggleSfmDir(this)">
+            <span class="sfm-arrow">▸</span>
+            <span class="sfm-dir-name">app/</span>
+            <span class="sfm-role sfm-functional">功能</span>
+            <span class="sfm-dir-desc">各文档类型的具体解析器实现</span>
+          </div>
+          <div class="sfm-dir-children" style="display:none">
+            <div class="sfm-file" data-role="functional">
+              <span class="sfm-file-icon">📄</span>
+              <span class="sfm-file-name">naive.py</span>
+              <span class="sfm-role sfm-functional">功能</span>
+              <span class="sfm-file-loc">~340 LOC</span>
+              <span class="sfm-file-desc">通用/naive 分块策略</span>
+            </div>
+            <div class="sfm-file" data-role="functional">
+              <span class="sfm-file-icon">📄</span>
+              <span class="sfm-file-name">paper.py</span>
+              <span class="sfm-role sfm-functional">功能</span>
+              <span class="sfm-file-loc">~180 LOC</span>
+              <span class="sfm-file-desc">学术论文专用分块（识别 section/abstract）</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Another top-level directory -->
+    <div class="sfm-dir" data-role="framework">
+      <div class="sfm-dir-header" onclick="toggleSfmDir(this)">
+        <span class="sfm-arrow">▸</span>
+        <span class="sfm-dir-name">deepdoc/</span>
+        <span class="sfm-role sfm-framework">框架</span>
+        <span class="sfm-dir-desc">文档理解引擎——OCR、布局分析、表格识别的统一接口</span>
+      </div>
+      <div class="sfm-dir-children" style="display:none">
+        <!-- files here -->
+      </div>
+    </div>
+  </div>
+
+  <div class="sfm-legend">
+    <div class="sfm-legend-item">
+      <span class="sfm-role sfm-framework">框架</span>
+      <span>定义项目骨架——抽象接口、配置系统、插件加载、生命周期管理。读这些文件理解架构。</span>
+    </div>
+    <div class="sfm-legend-item">
+      <span class="sfm-role sfm-functional">功能</span>
+      <span>实现具体能力——特定解析器、特定模型、特定 API。读这些文件理解功能边界。</span>
+    </div>
+    <div class="sfm-legend-item">
+      <span class="sfm-role sfm-framework">🚀 入口</span>
+      <span>程序启动点——main.py、cli.py、app.py。从这里开始追踪代码执行路径。</span>
+    </div>
+  </div>
+
+  <div class="sfm-reading-order">
+    <h4 class="sfm-reading-title">推荐阅读顺序</h4>
+    <div class="sfm-reading-steps">
+      <div class="sfm-reading-step">
+        <span class="sfm-reading-num">1</span>
+        <code>rag/settings.py</code>
+        <span class="sfm-reading-reason">先看全局配置，理解所有可调参数的默认值</span>
+      </div>
+      <div class="sfm-reading-step">
+        <span class="sfm-reading-num">2</span>
+        <code>deepdoc/vision/__init__.py</code>
+        <span class="sfm-reading-reason">理解模型层的抽象接口设计</span>
+      </div>
+      <div class="sfm-reading-step">
+        <span class="sfm-reading-num">3</span>
+        <code>rag/svr/task_executor.py</code>
+        <span class="sfm-reading-reason">核心执行引擎——文档解析的主循环在这里</span>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+**Rules:**
+- Exactly 1 Source File Map per guide, placed in Module 1 (架构全景)
+- List the top 30-50 most important files/directories — not every file
+- Every file/directory must be classified as framework or functional
+- Include a "reading order" section: the 3-5 files a developer should read first to understand the architecture
+- Use real file paths from the codebase (verify they exist)
+- Approximate LOC counts are fine (don't need exact counts)
+- Group files by their parent directory, with directory-level summaries
+- The filter buttons (全部/仅框架/仅功能/入口文件) must work — this helps engineers focus on what they care about

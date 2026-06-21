@@ -1,11 +1,28 @@
 ---
 name: codebase-to-course
-description: "Turn any codebase into a beautiful, interactive single-page HTML course that teaches how the code works to non-technical people. Use this skill whenever someone wants to create an interactive course, tutorial, or educational walkthrough from a codebase or project. Also trigger when users mention 'turn this into a course,' 'explain this codebase interactively,' 'teach this code,' 'interactive tutorial from code,' 'codebase walkthrough,' 'learn from this codebase,' or 'make a course from this project.' This skill produces a stunning, self-contained HTML file with scroll-based navigation, animated visualizations, embedded quizzes, and code-with-plain-English side-by-side translations."
+version: 2.0.0
+description: "Turn any codebase into a beautiful, interactive HTML guide. Two modes: 'beginner mode' for non-technical people, 'engineer mode' for developers doing technical due diligence — architecture decisions, critical paths, limitations, and integration analysis."
+description_zh: "将任意代码库转化为精美的交互式 HTML 指南。两种模式：'入门模式'面向非技术人员，'工程师模式'面向开发者做技术选型——架构决策、关键路径、局限分析、集成评估。"
+category: education
 ---
 
 # Codebase-to-Course
 
-Transform any codebase into a stunning, interactive course. The output is a **directory** containing a pre-built `styles.css`, `main.js`, per-module HTML files, and an assembled `index.html` — open it directly in the browser with no setup required (only external dependency: Google Fonts CDN). The course teaches how the code works through scroll-based modules, animated visualizations, embedded quizzes, and plain-English translations of code.
+Transform any codebase into a stunning, interactive guide. Supports **two modes** that produce fundamentally different outputs:
+
+- **Beginner Mode** (default) — Teaches non-technical people how the code works, using metaphors, plain-language explanations, and interactive visualizations.
+- **Engineer Mode** — Deep technical analysis for developers doing due diligence on an open-source project. Focuses on architecture decisions, critical code paths, limitations, performance characteristics, and integration patterns.
+
+The output is a **directory** containing a pre-built `styles.css`, `main.js`, per-module HTML files, and an assembled `index.html` — open it directly in the browser with no setup required (only external dependency: Google Fonts CDN).
+
+## Mode Detection
+
+When the skill is triggered, determine which mode to use:
+
+- **Engineer Mode triggers:** User mentions "engineer mode", "工程师模式", "technical analysis", "技术分析", "deep dive", "深度分析", "code review", "for developers", "面向开发者", "技术选型", "evaluation", "评估", "架构分析", "architecture analysis", or explicitly says they are a developer/engineer evaluating the project.
+- **Beginner Mode triggers:** User mentions "course", "课程", "tutorial", "教程", "explain simply", "简单解释", "for beginners", "入门", or does NOT specify a mode (default).
+
+If ambiguous, ask the user: "这个分析是面向工程师做技术选型（工程师模式），还是面向非技术人员理解代码（入门模式）？"
 
 ## First-Run Welcome
 
@@ -22,7 +39,17 @@ When the skill is first triggered and the user hasn't specified a codebase yet, 
 
 If the user provides a GitHub link, clone the repo first (`git clone <url> /tmp/<repo-name>`) before starting the analysis. If they say "this codebase" or similar, use the current working directory.
 
-## Who This Is For
+**For Engineer Mode**, adjust the welcome message:
+
+> **我可以对任意开源项目做深度技术分析——帮你在引入项目之前看清它的架构、能力边界和集成可能性。**
+>
+> 给我一个项目：
+> - **本地路径** — 如 "分析 ./my-project"
+> - **GitHub 链接** — 如 "深度分析 https://github.com/user/repo"
+>
+> 我会逐行阅读核心代码，生成一份交互式技术分析报告，包含架构决策分析、关键代码路径追踪、性能与局限性评估、以及与其他项目的集成方案。
+
+## Who This Is For (Beginner Mode)
 
 The target learner is a **"vibe coder"** — someone who builds software by instructing AI coding tools in natural language, without a traditional CS education. They may have built this project themselves (without looking at the code), or they may have found an interesting open-source project on GitHub and want to understand how it's built. Either way, they don't yet understand what's happening under the hood.
 
@@ -47,6 +74,144 @@ The learner already has context that traditional students don't — they've *use
 Every module answers **"why should I care?"** before "how does it work?" The answer to "why should I care?" is always practical: *because this knowledge helps you steer AI better, debug faster, or make smarter architectural decisions.*
 
 The directory-based output is intentional: separating CSS/JS from content means AI never regenerates boilerplate, each module is written independently (keeping output size small and quality high), and the assembled `index.html` works offline with zero setup.
+
+---
+
+## Engineer Mode — 技术选型深度分析
+
+When the user triggers Engineer Mode, **everything changes** — the audience, the curriculum, the interactive elements, the tone, and the analytical depth. Engineer Mode is NOT a "harder version" of Beginner Mode; it's a completely different product.
+
+### Who This Is For (Engineer Mode)
+
+The target reader is a **professional software engineer** evaluating whether to adopt an open-source project. They have:
+- Solid CS fundamentals (data structures, design patterns, distributed systems)
+- Experience with similar tools/frameworks in the same category
+- The ability to read code — they don't need metaphors for basic concepts
+
+**What they need to answer:**
+1. **"这个项目的设计决策合理吗？"** — Are the architectural choices sound? What were the alternatives? What trade-offs were made and why?
+2. **"关键路径是怎么实现的？"** — Trace the most important code paths line by line. Which 50 lines of code carry 80% of the complexity?
+3. **"它在我的场景下能工作吗？"** — What are the performance characteristics, limitations, and failure modes? What configurations matter?
+4. **"它能和我的技术栈集成吗？"** — What are the integration points, extension mechanisms, and API contracts? How does it combine with other projects?
+5. **"和竞品比，选它还是选别的？"** — Where does it excel, where does it fall short, and what decision framework should guide the choice?
+
+**Tone:** Senior engineer writing a technical due diligence report. Precise, honest, occasionally critical. No cheerleading — if something is a weakness, say so clearly. No hand-holding on basic concepts (don't explain what an API is). But DO explain project-specific conventions and domain-specific terms.
+
+### Engineer Mode Curriculum Structure
+
+Structure as **5-7 modules**, following the engineer's decision journey:
+
+| Module Position | Purpose | Key Question It Answers |
+|---|---|---|
+| 1 | **架构全景与技术栈** | "What is this project, what's the tech stack, and why was it built this way?" High-level architecture with explicit design philosophy. **Must include a Source File Map** — annotated directory tree classifying every key source file as framework or functional. |
+| 2 | **关键路径深度追踪** | "When a complex request comes in, what EXACTLY happens?" Trace 1-2 core operations through every layer, with line-level code references. |
+| 3 | **核心设计决策** | "What are the 3-5 most important architectural decisions?" For each: the problem, the chosen approach, alternatives considered, and trade-offs. |
+| 4 | **性能特征与局限** | "Where does it break? What are the bottlenecks?" Honest assessment of performance, scalability, edge cases, and known limitations. |
+| 5 | **扩展与定制** | "How do I extend it?" Plugin systems, hooks, configuration, subclassing patterns. Show the extension API with real examples. |
+| 6 | **集成蓝图** | "How does it combine with other projects?" Concrete integration patterns, API contracts, data format compatibility. |
+| 7 | **选型决策** | "Should I use this?" Comparison matrix vs alternatives, scenario-based recommendations, final verdict. |
+
+This is a **framework, not a template**. Adapt modules to the project's nature — a CLI tool might skip Module 6, a framework might emphasize Module 5, a library might expand Module 7.
+
+### Engineer Mode — Phase 1: Deep Analysis
+
+Beyond the standard codebase analysis, Engineer Mode requires **deeper extraction:**
+
+**Additional analysis requirements:**
+- **Architecture Decision Records**: For each major design choice, extract: the problem it solves, the chosen approach, 2-3 alternatives that were NOT chosen, and why. Look for comments, ADR files, or infer from code structure.
+- **Critical Path Code**: Identify and extract the 3-5 most important code paths (the ones that handle the core operations). Include exact file paths and line numbers. These become the "deep trace" screens.
+- **Performance-relevant Code**: Find configuration parameters that affect performance (batch sizes, timeouts, concurrency limits, buffer sizes). Extract the code that implements throttling, caching, batching.
+- **Extension Points**: Catalog all extension mechanisms — plugin interfaces, abstract base classes meant for subclassing, hook functions, event systems, configuration-driven behavior.
+- **Failure Modes**: Search for error handling patterns, retry logic, fallback mechanisms, known issues (from comments, TODOs, issue references).
+- **Integration Surface**: Map all external interfaces — REST APIs, SDK methods, data formats, protocol support, webhook systems.
+- **Source File Classification**: For every key directory and file in the project, classify it as **framework** (structural/architectural — the skeleton that everything else hangs on) or **functional** (feature-specific — implements a particular capability). Extract file paths, sizes (LOC), and a one-line description of each. This becomes the Source File Map in Module 1.
+
+**Comparative context**: Read the project's README comparison section (if any), check if it mentions competitors, and note its self-positioning.
+
+### Engineer Mode — Module Design Principles
+
+- **Code is the evidence.** Every claim ("this project handles X well") must be backed by a specific code snippet with file path and line numbers. No hand-waving.
+- **Show the alternatives.** For every major design decision, mention what could have been done differently and why it wasn't. This is what separates analysis from documentation.
+- **Be honest about weaknesses.** Every project has them. Engineers trust analyses that acknowledge limitations. Use `callout-warning` for known issues.
+- **Quantify when possible.** "Handles 10K documents/hour on a single GPU" beats "handles documents quickly." Extract benchmarks, performance tests, or compute estimates from the code.
+- **Integration is actionable.** Don't just describe APIs — show concrete integration code examples (how to connect Project A's output to Project B's input).
+
+### Engineer Mode — Mandatory Interactive Elements
+
+**These elements are REQUIRED in every Engineer Mode guide (in addition to the standard set):**
+
+- **Architecture Decision Cards (ADR Cards)** — at least 3 across the guide. Each card shows: the problem, the chosen solution, 2-3 alternatives, the trade-off analysis, and the key code that implements it.
+- **Critical Path Traces** — at least 2 across the guide. Step-by-step code walkthroughs of the most important operations, with engineering commentary explaining WHY each step exists, not just WHAT it does.
+- **Trade-off Matrix** — at least 1 across the guide. A comparison table evaluating different approaches/configurations across multiple dimensions (performance, complexity, memory, accuracy).
+- **Scenario Judge** — at least 1 across the guide. Present 3-4 real-world scenarios and evaluate the project's suitability for each, with honest pros/cons.
+- **Integration Blueprint** — at least 1 across the guide (if the project has integration points). Show how data flows between this project and other systems, with code examples.
+- **Source File Map** — exactly 1, placed in Module 1. An annotated directory tree that classifies every key source file/directory as "framework" (skeleton/architectural) or "functional" (feature implementation). This helps developers quickly orient themselves in the codebase — knowing which files to read first for architecture understanding vs which to read for feature implementation.
+
+**Standard elements still required:** Data Flow Animation, Quizzes (focused on engineering judgment), Code blocks (with engineering commentary, not plain-language translation), Glossary Tooltips (only for project-specific or domain-specific terms, not basic CS).
+
+### Engineer Mode — Code Block Style
+
+Instead of the Beginner Mode "Code ↔ Plain English" translation, Engineer Mode uses **Code ↔ Engineering Commentary:**
+
+- **Left panel**: Real code from the codebase (exact, unmodified)
+- **Right panel**: Engineering analysis — WHY this code is written this way, what design pattern it implements, what trade-off it makes, what could go wrong, what alternative approaches exist.
+
+The right panel assumes the reader CAN read code. It adds value by providing context, analysis, and judgment that the code alone doesn't convey.
+
+**HTML pattern:** Use `translation-block` with the label changed from "PLAIN ENGLISH" to "工程分析" / "ENGINEERING ANALYSIS".
+
+### Engineer Mode — Quiz Design
+
+Quizzes test **engineering judgment**, not factual recall:
+
+**Good quiz questions:**
+- "Your service needs to process 100K documents/hour. Based on the architecture, which configuration would you choose?"
+- "The team wants to add a custom document parser. Based on the extension system, what's the correct approach?"
+- "You've noticed search results are missing relevant documents. Based on the retrieval pipeline, where would you look first?"
+- "Project A outputs format X, Project B expects format Y. What's the most reliable bridge?"
+
+### Engineer Mode — Design Differences
+
+- **More code per screen** — Allow larger code blocks (15-25 lines) when the analysis requires it.
+- **Comparison tables** — Engineers think in trade-offs. Use tables to compare approaches, configurations, and alternatives.
+- **"Verdict" callouts** — At the end of each module: "This approach is [strong/adequate/weak] for [scenario] because [reason]."
+- **Risk indicators** — Use colored badges: 🟢 Low Risk, 🟡 Medium Risk, 🔴 High Risk for identified limitations and failure modes.
+
+### Engineer Mode — Source File Map
+
+Every Engineer Mode guide **must include a Source File Map** in Module 1 (架构全景). This is an annotated directory tree that classifies each key source file/directory into one of two categories:
+
+- **框架性文件 (Framework)** — The skeleton. Abstract base classes, interfaces, configuration systems, plugin loaders, middleware, routing, dependency injection, lifecycle management. These files define HOW the project is structured. Reading them gives you the architecture. Examples: `base.py`, `registry.py`, `settings.py`, `__init__.py` (with imports), `pipeline.py` (base class), `factory.py`.
+
+- **功能性文件 (Functional)** — The flesh. Concrete implementations of specific features, specific parsers, specific models, specific API endpoints. These files define WHAT the project does. Reading them gives you the capabilities. Examples: `pdf_parser.py`, `ocr_model.py`, `openai_llm.py`, `chunk_app.py`, `table_recognizer.py`.
+
+**Classification rules:**
+- A file that defines abstract interfaces → Framework
+- A file that implements a specific feature against those interfaces → Functional
+- A file that wires things together (factory, registry, config loader) → Framework
+- A file that contains business logic for one use case → Functional
+- Entry points (`main.py`, `app.py`, `cli.py`) → Framework (they define the startup architecture)
+- Test files → Functional (they test specific features), but skip listing individual tests
+- Config/Schema files → Framework (they define the configuration contract)
+
+**What to show:**
+- Top 30-50 most important files/directories (don't list every file — focus on the ones a developer would actually need to read)
+- For each: file path, role tag (框架/功能), one-line description, approximate LOC
+- Group by directory, with directory-level summaries
+- Highlight the "start here" files — the 3-5 files a developer should read first to understand the architecture
+- Use the existing `file-tree` visual element, enhanced with role badges
+
+**Why this matters:** Developers approaching a new codebase don't start from architecture diagrams — they start from the file listing. A Source File Map bridges the gap: "I see 500 files, but which 5 should I read first to understand how this works?" Without it, the analysis feels abstract ("看山不见山" — seeing the mountain but not understanding its composition).
+
+### Engineer Mode — Module 7: Selection Decision Framework
+
+If the guide includes a comparison/selection module (Module 7), it should contain:
+
+1. **Capability Matrix** — Feature-by-feature comparison with 2-3 alternatives in the same category.
+2. **Scenario Recommendations** — "If your use case is X, choose this project. If Y, consider alternative Z instead."
+3. **Integration Map** — If analyzing multiple related projects, show how they can be combined and which combinations make sense.
+4. **Migration Path** — If the engineer is currently using a different tool, what does migration look like?
+5. **Final Verdict** — A clear, opinionated recommendation with caveats.
 
 ---
 

@@ -15,6 +15,10 @@
  *  - Architecture diagram
  *  - "Spot the bug" challenge
  *  - Layer toggle
+ *
+ * Engineer Mode engines:
+ *  - ADR card toggle
+ *  - Scenario Judge toggle
  */
 (function () {
   'use strict';
@@ -493,6 +497,53 @@
     const layer = $('#' + layerId);
     if (layer) layer.style.display = 'block';
     btn.classList.add('active');
+  };
+
+  /* ── ADR CARD TOGGLE (Engineer Mode) ──────────────────────── */
+  window.toggleADR = function (btn) {
+    const card = btn.closest('.adr-card');
+    if (!card) return;
+    const body = $('.adr-body', card);
+    if (!body) return;
+    const isHidden = body.style.display === 'none' || body.style.display === '';
+    body.style.display = isHidden ? 'block' : 'none';
+    btn.textContent = isHidden ? '收起分析 ▴' : '展开分析 ▾';
+  };
+
+  /* ── SCENARIO JUDGE TOGGLE (Engineer Mode) ─────────────────── */
+  window.toggleScenario = function (headerEl) {
+    const card = headerEl.closest('.sj-card');
+    if (!card) return;
+    const body = $('.sj-card-body', card);
+    if (!body) return;
+    const isHidden = body.style.display === 'none' || body.style.display === '';
+    body.style.display = isHidden ? 'block' : 'none';
+    card.classList.toggle('expanded', isHidden);
+  };
+
+  /* ── SOURCE FILE MAP (Engineer Mode) ───────────────────────── */
+  window.toggleSfmDir = function (headerEl) {
+    const dir = headerEl.closest('.sfm-dir');
+    if (!dir) return;
+    const children = $('.sfm-dir-children', dir);
+    if (!children) return;
+    const arrow = $('.sfm-arrow', headerEl);
+    const isHidden = children.style.display === 'none';
+    children.style.display = isHidden ? 'block' : 'none';
+    dir.classList.toggle('open', isHidden);
+    if (arrow) arrow.textContent = isHidden ? '▾' : '▸';
+  };
+
+  window.filterSfm = function (btn, role) {
+    const map = btn.closest('.source-file-map');
+    if (!map) return;
+    $$('.sfm-filter', map).forEach(f => f.classList.remove('active'));
+    btn.classList.add('active');
+    if (role === 'all') {
+      map.removeAttribute('data-filter');
+    } else {
+      map.setAttribute('data-filter', role);
+    }
   };
 
 })();

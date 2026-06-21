@@ -30,3 +30,34 @@ Trying to write all modules in one pass causes later modules to be thin and rush
 
 ### Missing Interactive Elements
 A module with only text and code blocks, no interactivity. Every module needs at least one of: quiz, data flow animation, group chat, architecture diagram, drag-and-drop. These aren't decorations — they're how non-technical learners actually process information.
+
+---
+
+## Engineer Mode — Additional Gotchas
+
+### Strawman Alternatives in ADR Cards
+Presenting obviously inferior alternatives to make the chosen approach look brilliant. Engineers will spot this instantly and lose trust in the entire analysis. **Fix:** Every alternative must be a genuine option that a reasonable team might have chosen. Show the real trade-offs — sometimes the alternative is better in specific dimensions.
+
+### Vague Performance Claims
+Writing "handles large workloads efficiently" or "good performance" without specifics. Engineers need numbers. **Fix:** Extract actual configuration defaults, benchmark results, batch sizes, and resource requirements from the code. If the codebase has no benchmarks, estimate from algorithm complexity, model sizes, and configuration parameters. Include file paths and line numbers for every performance-relevant setting.
+
+### Cheerleading Without Criticism
+Only highlighting strengths while ignoring or downplaying weaknesses. This is the #1 trust-killer for Engineer Mode content. **Fix:** Every module must include at least one `callout-warning` or risk indicator for a genuine limitation. If you can't find any weaknesses, you haven't looked deep enough.
+
+### Missing Code References
+Making architectural claims without pointing to the specific code that implements them. **Fix:** Every claim about architecture, performance, or design must be accompanied by at least one code snippet with exact file path and line numbers. No hand-waving.
+
+### Over-Tooltipping Basic Concepts
+In Engineer Mode, tooltiping terms like "API", "async", "middleware", or "callback" insults the reader's intelligence and clutters the page. **Fix:** Only tooltip project-specific terms, domain-specific jargon, and configuration parameters. Assume the reader has solid CS fundamentals.
+
+### Non-Actionable Integration Sections
+Describing integration points abstractly ("Project A can work with Project B via their REST API") without showing actual code. **Fix:** Every integration description must include a concrete code example showing how to bridge the two systems. Include data format conversions, API calls, and error handling.
+
+### Missing Verdicts
+Ending a module without a clear, opinionated recommendation. Engineers read these analyses to make decisions — if every section ends with "it depends," they learn nothing. **Fix:** Every module must end with a verdict callout that gives a clear recommendation for specific scenarios.
+
+### Scenario Judge Without Honesty
+Marking every scenario as "excellent fit" because the analysis is supposed to be positive. **Fix:** Include at least one "not recommended" scenario per guide. Suggest alternative tools or combination approaches. This honesty builds trust and is genuinely useful for the engineer.
+
+### Trade-off Matrix Without Real Trade-offs
+Creating comparison tables where one approach wins on every dimension. **Fix:** Every approach in a trade-off matrix should win on at least one dimension. If an approach loses on every dimension, it shouldn't be in the comparison — or you haven't analyzed it fairly.
