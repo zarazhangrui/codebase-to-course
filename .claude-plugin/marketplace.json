@@ -1,0 +1,14 @@
+{
+  "name": "codebase-to-course",
+  "owner": {
+    "name": "zarazhangrui"
+  },
+  "description": "Turn any codebase into an interactive single-page HTML course.",
+  "plugins": [
+    {
+      "name": "codebase-to-course",
+      "source": "./",
+      "description": "Turn any codebase into a beautiful, interactive single-page HTML course that teaches how the code works to non-technical people."
+    }
+  ]
+}
