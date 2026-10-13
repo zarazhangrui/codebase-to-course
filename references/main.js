@@ -496,3 +496,78 @@
   };
 
 })();
+
+/* ── CODE TIDY + LINKED HIGHLIGHT ────────────────────────────
+   1. Tidy every code block: drop stray newlines between .code-line
+      spans (they render as blank lines), turn tabs into 2 spaces,
+      remove the indent all lines share, and hang wrapped lines
+      under the start of their own line.
+   2. Hovering (or focusing) a .tl row with data-lines="2,4-6"
+      highlights those .code-line spans in the same block.        */
+(function () {
+  'use strict';
+
+  // Strip up to n leading spaces from a line, across nested spans.
+  function stripLead(line, n) {
+    const walker = document.createTreeWalker(line, NodeFilter.SHOW_TEXT);
+    let node;
+    while (n > 0 && (node = walker.nextNode())) {
+      const t = node.textContent;
+      const spaces = t.length - t.replace(/^ +/, '').length;
+      const cut = Math.min(spaces, n);
+      node.textContent = t.slice(cut);
+      n -= cut;
+      if (cut < t.length) break; // hit real text
+    }
+  }
+
+  document.querySelectorAll('code').forEach(code => {
+    const walker = document.createTreeWalker(code, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      if (node.textContent.includes('\t')) node.textContent = node.textContent.replace(/\t/g, '  ');
+    }
+  });
+
+  document.querySelectorAll('pre code').forEach(code => {
+    const lines = Array.from(code.querySelectorAll(':scope > .code-line'));
+    if (!lines.length) return;
+    Array.from(code.childNodes).forEach(n => {
+      if (n.nodeType === Node.TEXT_NODE && !n.textContent.trim()) n.remove();
+    });
+    const indentOf = l => l.textContent.length - l.textContent.replace(/^ +/, '').length;
+    const used = lines.filter(l => l.textContent.trim());
+    const shared = used.length ? Math.min(...used.map(indentOf)) : 0;
+    lines.forEach(l => {
+      if (shared) stripLead(l, shared);
+      const hang = indentOf(l) + 4;
+      l.style.paddingLeft = hang + 'ch';
+      l.style.textIndent = -hang + 'ch';
+    });
+  });
+
+  const parseLines = spec => spec.split(',').flatMap(part => {
+    const [a, b] = part.trim().split('-').map(Number);
+    const end = b || a;
+    return Array.from({ length: Math.max(end - a + 1, 0) }, (_, i) => a + i);
+  });
+
+  document.querySelectorAll('.translation-block').forEach(block => {
+    const codeSide = block.querySelector('.translation-code');
+    const lines = block.querySelectorAll('.translation-code .code-line');
+    if (!codeSide || !lines.length) return;
+    block.querySelectorAll('.tl[data-lines]').forEach(row => {
+      const targets = parseLines(row.dataset.lines).map(i => lines[i - 1]).filter(Boolean);
+      const set = on => {
+        codeSide.classList.toggle('has-hl', on);
+        row.classList.toggle('tl-active', on);
+        targets.forEach(l => l.classList.toggle('hl', on));
+      };
+      row.tabIndex = 0;
+      row.addEventListener('mouseenter', () => set(true));
+      row.addEventListener('mouseleave', () => set(false));
+      row.addEventListener('focus', () => set(true));
+      row.addEventListener('blur', () => set(false));
+    });
+  });
+})();

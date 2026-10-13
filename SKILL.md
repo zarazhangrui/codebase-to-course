@@ -189,6 +189,7 @@ This produces `index.html`. Open it in the browser.
 - Use `min-height: 100dvh` with `100vh` fallback on `.module`
 - Interactive element JS is in `main.js`; wire up via `data-*` attributes and CSS class names as shown in `references/interactive-elements.md`
 - Chat containers need `id` attributes; flow animations need `data-steps='[...]'` JSON on `.flow-animation`
+- Every `.tl` row in a code↔English block needs `data-lines` (the code lines it explains); `.code-line` spans go back to back with no newlines between them
 
 ### Phase 4: Review and Open
 
