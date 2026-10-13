@@ -34,20 +34,15 @@ The most important teaching element. Shows real code from the project on the lef
 <div class="translation-block animate-in">
   <div class="translation-code">
     <span class="translation-label">CODE</span>
-    <pre><code>
-<span class="code-line"><span class="code-keyword">const</span> response = <span class="code-keyword">await</span> <span class="code-function">fetch</span>(url, {</span>
-<span class="code-line">  <span class="code-property">method</span>: <span class="code-string">'POST'</span>,</span>
-<span class="code-line">  <span class="code-property">headers</span>: { <span class="code-string">'Authorization'</span>: apiKey }</span>
-<span class="code-line">});</span>
-    </code></pre>
+    <pre><code><span class="code-line"><span class="code-keyword">const</span> response = <span class="code-keyword">await</span> <span class="code-function">fetch</span>(url, {</span><span class="code-line">  <span class="code-property">method</span>: <span class="code-string">'POST'</span>,</span><span class="code-line">  <span class="code-property">headers</span>: { <span class="code-string">'Authorization'</span>: apiKey }</span><span class="code-line">});</span></code></pre>
   </div>
   <div class="translation-english">
     <span class="translation-label">PLAIN ENGLISH</span>
     <div class="translation-lines">
-      <p class="tl">Send a request to the URL and wait for a response...</p>
-      <p class="tl">We're sending data (POST), not just asking for it (GET)...</p>
-      <p class="tl">Include our API key so the server knows who we are...</p>
-      <p class="tl">End of the request setup.</p>
+      <p class="tl" data-lines="1">Send a request to the URL and wait for a response...</p>
+      <p class="tl" data-lines="2">We're sending data (POST), not just asking for it (GET)...</p>
+      <p class="tl" data-lines="3">Include our API key so the server knows who we are...</p>
+      <p class="tl" data-lines="4">End of the request setup.</p>
     </div>
   </div>
 </div>
@@ -99,6 +94,8 @@ The most important teaching element. Shows real code from the project on the lef
 .translation-english .translation-label {
   color: var(--color-text-muted);
 }
+/* Wide screens (>=1100px): styles.css lets the block break out of the
+   reading column (up to 1400px) and gives code 3fr vs English 2fr. */
 /* Responsive: stack vertically on mobile */
 @media (max-width: 768px) {
   .translation-block { grid-template-columns: 1fr; }
@@ -107,6 +104,8 @@ The most important teaching element. Shows real code from the project on the lef
 ```
 
 **Rules:**
+- **Every `.tl` row gets `data-lines`** — the 1-based indexes of the `.code-line` spans in the same block that the row explains (`"3"`, `"4-6"`, `"2,9-10"`). `main.js` highlights those lines when the learner hovers or focuses the row, and dims the rest.
+- **Put the `.code-line` spans back to back with no newline between them.** The spans are `display: block` inside a `pre-wrap` block, so any newline between them renders as a blank line under every code line. Copy indentation exactly; `main.js` turns tabs into 2 spaces, removes the shared indent, and hangs wrapped lines under their own start at load time.
 - Each English line should correspond to 1-2 code lines
 - Use conversational language, not technical jargon
 - Highlight the "why" not just the "what" — e.g., "Include our API key so the server knows who we are" not "Set the Authorization header"

@@ -1193,3 +1193,26 @@ p:last-child { margin-bottom: 0; }
   80%  { opacity: 1; }
   to   { left: var(--packet-to-x);   top: var(--packet-to-y);   opacity: 0; }
 }
+
+/* ── WIDE SPLIT BLOCKS ────────────────────────────────── */
+/* On wide screens, code/English blocks break out of the reading
+   column to use more of the page. Code gets the larger share. */
+@media (min-width: 1100px) {
+  .translation-block {
+    --wide-half: min(700px, calc(50vw - 3rem));
+    margin-left: calc(50% - var(--wide-half));
+    margin-right: calc(50% - var(--wide-half));
+    grid-template-columns: 3fr 2fr;
+  }
+}
+
+/* ── CODE TIDY + LINKED HIGHLIGHT ────────────────────────────── */
+pre code { font-variant-ligatures: none; }  /* show -> and <= as typed */
+.translation-code .code-line { transition: opacity 0.15s ease, background 0.15s ease; border-radius: 3px; }
+.translation-code.has-hl .code-line { opacity: 0.35; }
+.translation-code.has-hl .code-line.hl {
+  opacity: 1;
+  background: rgba(250, 179, 135, 0.14);
+}
+.translation-lines .tl[data-lines] { transition: background 0.15s ease; border-radius: var(--radius-sm); }
+.translation-lines .tl.tl-active { background: var(--color-accent-light); outline: none; }

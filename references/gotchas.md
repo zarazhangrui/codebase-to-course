@@ -30,3 +30,12 @@ Trying to write all modules in one pass causes later modules to be thin and rush
 
 ### Missing Interactive Elements
 A module with only text and code blocks, no interactivity. Every module needs at least one of: quiz, data flow animation, group chat, architecture diagram, drag-and-drop. These aren't decorations — they're how non-technical learners actually process information.
+
+### Ugly Code Blocks
+Source code copied with tabs and newlines between `.code-line` spans renders double-spaced, 8-space indented, and wrapped to column 0. `main.js` tidies code at load (tabs to 2 spaces, shared indent removed, hanging indent on wrapped lines, stray newlines dropped) and `styles.css` turns off font ligatures so `->` and `<=` show as typed. Still write the spans back to back. In Spot-the-Bug lines, also replace tabs and remove the shared indent in the markup, since that pattern has no `.code-line` spans.
+
+### Narrow Split Blocks
+Code↔English blocks in a 1fr/1fr grid inside the reading column waste a wide screen and force code to wrap. `styles.css` widens them on screens of 1100px and up. Do not override `.translation-block` width or columns inline.
+
+### Missing Line Links
+Every `.tl` row needs `data-lines` so hover highlights its code. Check by script before calling a module done: every `.tl` has the attribute, and every index is within the block's `.code-line` count.
